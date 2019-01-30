@@ -33,8 +33,7 @@ AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store'
 help = 'lines to slice from fastq file for determining if interleaved. MUST be a multiple of 4.')
 
 BUILD_HELP =""" Usage: scons --fastq_dir=/path/to/fastq/files --genome=/path/to/genome
---outdir=/path/to/output/directory --interleaved=0/1 --sampleids=FOO,BAR,BAZ
---outlierids=FUBAR,WB --netsam=FOO42
+--outdir=/path/to/output/directory --interleaved=0/1 --sampleids=FOO,BAR,BAZ --netsam=FOO42
 """
 
 if GetOption('help'):
