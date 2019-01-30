@@ -21,9 +21,6 @@ AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
           action = 'store',
           help = '''identifier for sample fastq files to be globbed, e.g. AB*.fastq.gz .
           Multiple identifiers can be specified in a single string when separated by commas, e.g. AB,MG,Megs''')
-AddOption('--outlierids', dest = 'outlier', type = 'str', nargs = 1,
-          action = 'store',
-          help = 'identifier for outlier fastq files to be globbed, e.g. (IDENTIFIER)*.fastq.gz')
 AddOption('--netsam', dest = 'netsam', type = 'str', nargs = 1,
          action = 'store', help = 'SAM file from mapping a particular FASTQ file for use in network.pl. E.g. if you want to use mapping of FOO42_R1.fastq.gz and FOO42_R2.fastq.gz, specify --netsam=FOO42')
 AddOption('--bwa_thread', dest = 'bwa_thread', type = 'int', nargs = 1, action = 'store',
