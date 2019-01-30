@@ -75,15 +75,14 @@ Command(bwa_index_targets, env['GENOME'], 'bwa index $SOURCE')
 #Generate list of input FASTQ files using sample IDs
 fastq_list = []
 
-for id in [env['SIDS'], env['OUTL']]:
-    if ',' in id:
-        id_list = id.split(',')
-        for i in id_list:
-            idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % i)
-            fastq_list.extend(list(glob.iglob(idGlob, recursive = False)))
-    else:
-        idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % id)
+if ',' in env['SIDS']:
+    id_list = env['SIDS'].split(',')
+    for i in id_list:
+        idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % i)
         fastq_list.extend(list(glob.iglob(idGlob, recursive = False)))
+else:
+    idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % id)
+    fastq_list.extend(list(glob.iglob(idGlob, recursive = False)))
 
 env.Replace(FQLIST=fastq_list)
 #------------------------------------------------------------------------------

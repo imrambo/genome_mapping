@@ -48,7 +48,6 @@ env = Environment(GENOME=GetOption('genome'),
                           FQDIR=GetOption('fastq_dir'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
-                          OUTL=GetOption('outlier'),
                           NETSAM=GetOption('netsam'),
                           NSLICE=GetOption('nslice'))
 #------------------------------------------------------------------------------
