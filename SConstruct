@@ -17,8 +17,6 @@ AddOption('--genome', dest = 'genome', type = 'string', nargs = 1,
 action = 'store', help='path to genome to map reads to')
 AddOption('--outdir', dest = 'outdir', type = 'string', nargs = 1,
 action = 'store', help = 'path to output directory')
-# AddOption('--interleaved', dest = 'interleaved', type = 'int', nargs = 1, default = 0,
-#          action = 'store', help = 'fastq read files are interleaved (use 1), or separate R1 and R2 (use 0)')
 AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
           action = 'store',
           help = '''identifier for sample fastq files to be globbed, e.g. AB*.fastq.gz .
@@ -34,7 +32,8 @@ AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, 
 help = 'number of threads for samtools sort')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
-#AddOption('--help', dest = 'help', type = 'str', nargs = 1, action = 'store', help = 'get some help')
+AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
+help = 'lines to slice from fastq file for determining if interleaved. MUST be a multiple of 4.')
 
 BUILD_HELP =""" Usage: scons --fastq_dir=/path/to/fastq/files --genome=/path/to/genome
 --outdir=/path/to/output/directory --interleaved=0/1 --sampleids=FOO,BAR,BAZ
@@ -50,8 +49,8 @@ env = Environment(GENOME=GetOption('genome'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
                           OUTL=GetOption('outlier'),
-                  #INTLV=GetOption('interleaved'),
-                  NETSAM=GetOption('netsam'))
+                          NETSAM=GetOption('netsam'),
+                          NSLICE=GetOption('nslice'))
 #------------------------------------------------------------------------------
 #Options for bwa mem, samtools sort
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
@@ -70,6 +69,7 @@ bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
+#Builder for depthfile creation; additional options must be added to this dict
 depthfile_opts = {'--noIntraDepthVariance':''}
 depthfile_action = 'src/jgi_summarize_bam_contig_depth --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
 depthfile_builder = Builder(action = depthfile_action)
