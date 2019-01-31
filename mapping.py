@@ -7,13 +7,11 @@ from itertools import islice
 from warnings import warn
 import argparse
 import subprocess
-from mapping import *
+from mapping_functions import *
 '''
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
-#=============================================================================
-
 #=============================================================================
 #Command line options and Environment
 parser = argparse.ArgumentParser()
@@ -36,11 +34,9 @@ help = 'number of threads for samtools sort')
 parser.add_argument('--samsort_mem', dest = 'samsort_mem', type = str, nargs = 1, action = 'store',
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
 parser.add_argument('--nslice', dest = 'nslice', type = int, nargs = 1, action = 'store',
-help = 'lines to slice from fastq file for determining if interleaved. MUST be a multiple of 4.')
+help = 'number of fastq headers to slice for determining if interleaved.')
 
 args = parser.parse_args()
-#=============================================================================
-
 #=============================================================================
 #Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':args.bwa_thread}
@@ -55,7 +51,13 @@ depthfile_optstring = optstring_join(depthfile_opts)
 ###
 ### Main
 ###
-
+#=============================================================================
+#Create output directory if it does not exist
+if not os.path.exists(args.outdir):
+    os.makedirs(args.outdir)
+else:
+    pass
+#=============================================================================
 #Index the genome file
 bwa_index(args.genome)
 #------------------------------------------------------------------------------
@@ -63,23 +65,23 @@ bwa_index(args.genome)
 fastq_list = source_list_generator(args.sids, args.fastq_dir, '.fastq.gz')
 #------------------------------------------------------------------------------
 mapping_targets = list()
-fastq_dict = find_fastq_pairs(fastq_list, nslice = args.nslice)
+fastq_dict = find_fastq_pairs(fastq_list, nslice = args.nslice*4)
 
 for key in fastq_dict:
     maptarg = [os.path.join(args.outdir, os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
     if fastq_dict[key]['R2'] == 'interleaved':
-        bwa_sam_intl(maptarg, [args.genome, fastq_dict[key]['R1']])
+        bwa_sam_intl(targets = maptarg, sources = [args.genome, fastq_dict[key]['R1']], bopts = bwa_optstring, sopts = samtools_sort_optstring)
         mapping_targets.extend(maptarg)
 
     else:
-        env.BWA_Samtools_R1R2(maptarg, [args.genome, fastq_dict[key]['R1'], fastq_dict[key]['R2']])
+        bwa_sam_r1r2(targets = maptarg, sources = [args.genome, fastq_dict[key]['R1'], fastq_dict[key]['R2']], bopts = bwa_optstring, sopts = samtools_sort_optstring)
         mapping_targets.extend(maptarg)
 #------------------------------------------------------------------------------
 #Depth file
 depthfile_target = os.path.join(args.outdir, os.path.splitext(os.path.basename(args.genome))[0] + '_cov')
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.reduced\.bam', m)]
 
-depth_file(target = depthfile_target, sources = depthfile_sources)
+depth_file(target = depthfile_target, sources = depthfile_sources, opts = depthfile_optstring)
 #------------------------------------------------------------------------------
 #Network file
 network_source = [m for m in mapping_targets if args.netsam in m and m.endswith('.sam')][0]

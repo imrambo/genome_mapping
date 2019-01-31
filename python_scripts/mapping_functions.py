@@ -20,7 +20,8 @@ def optstring_join(optdict):
 #------------------------------------------------------------------------------
 def find_fastq_pairs(fastq_list, nslice = 800):
     """
-    Match paired-end FASTQ reads using header information.
+    Determine if FASTQ files are paired or interleaved, and match them
+    accordingly based on header information.
     """
     if nslice % 4:
         warn('WARNING: --nslice is not a multiple of 4')
@@ -77,36 +78,44 @@ def bwa_index(source):
     subprocess.POpen(bwa_index_action, shell = True)
     return None
 #------------------------------------------------------------------------------
-def bwa_sam_intl(targets, sources):
+def bwa_sam_intl(targets, sources, bopts, sopts):
     """
     Pipe for bwa-mem and samtools producing reduced SAM and BAM using
     interleaved FASTQ files.
     """
-    bwa_samtools_intl_action = 'bwa mem %s %s -p %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bwa_optstring, sources[0], sources[1], targets[0], samtools_sort_optstring, targets[1])
+    bwa_samtools_intl_action = 'bwa mem %s %s -p %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bopts, sources[0], sources[1], targets[0], sopts, targets[1])
     subprocess.POpen(bwa_samtools_intl_action, shell = True)
     return None
 #------------------------------------------------------------------------------
-def bwa_sam_r1r2(targets, sources):
+def bwa_sam_r1r2(targets, sources, bopts, sopts):
     """
     Pipe for bwa-mem and samtools producing reduced SAM and BAM using
     non-interleaved FASTQ files.
     """
-    bwa_samtools_r1r2_action = 'bwa mem %s %s %s %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bwa_optstring, ' '.join(sources), targets[0], samtools_sort_optstring, targets[1])
+    bwa_samtools_r1r2_action = 'bwa mem %s %s %s %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bopts, ' '.join(sources), targets[0], sopts, targets[1])
     subprocess.POpen(bwa_samtools_r1r2_action, shell = True)
     return None
 #------------------------------------------------------------------------------
-def depth_file(target, sources):
-    depthfile_action = 'src/jgi_summarize_bam_contig_depth --outputDepth %s %s %s' % (target, ' '.join(sources), depthfile_optstring)
+def depth_file(target, sources, opts):
+    """
+    Create a depth file from one or more BAM files.
+    """
+    depthfile_action = 'src/jgi_summarize_bam_contig_depth --outputDepth %s %s %s' % (target, ' '.join(sources), opts)
     subprocess.POpen(depthfile_action, shell = True)
     return None
 #------------------------------------------------------------------------------
 def network_file(target, source):
+    """
+    Create a network file for MMGenome1. Requires a SAM file as input.
+    """
     network_action = 'perl src/network.pl -i %s -o %s' % (source, target)
     subprocess.POpen(network_action, shell = True)
     return None
 #------------------------------------------------------------------------------
 def source_list_generator(id_string, source_dir, extension):
-    #Generate list of source files using sample IDs
+    """
+    Generate list of source files using sample IDs
+    """
     source_list = list()
     if ',' in id_string:
         id_list = id_string.split(',')
