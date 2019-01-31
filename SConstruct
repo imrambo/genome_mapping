@@ -38,7 +38,7 @@ BUILD_HELP =""" Usage: scons --fastq_dir=/path/to/fastq/files --genome=/path/to/
 
 if GetOption('help'):
     Help(BUILD_HELP)
-
+#------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(GENOME=GetOption('genome'),
                           FQDIR=GetOption('fastq_dir'),
