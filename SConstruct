@@ -1,9 +1,4 @@
-import glob
 import os
-import gzip
-import re
-from itertools import islice
-from warnings import warn
 '''
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
@@ -87,8 +82,10 @@ builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'Network':network_builder}
 env.Append(BUILDERS = builders)
 
-env.SConscript(['mapping/SConscript'], variant_dir=env['MAPDIR'], exports='env')
-env.SConscript(['network/SConscript'], variant_dir=env['NETDIR'], exports='env')
+#VariantDir(env['MAPDIR'], [env['FQDIR'], os.path.dirname(env['GENOME'])], duplicate=0)
+#VariantDir(env['NETDIR'], env['MAPDIR'], duplicate=0)
+SConscript('mapping/SConscript', variant_dir=env['OUTDIR'], exports='env')
+SConscript('network/SConscript', variant_dir=env['OUTDIR'], exports='env')
 
 
 Export('env')
