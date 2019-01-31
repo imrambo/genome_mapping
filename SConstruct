@@ -82,12 +82,12 @@ env.Append(BUILDERS = builders)
 
 mapdir = os.path.join(env['OUTDIR'], 'mapping')
 netdir = os.path.join(env['OUTDIR'], 'network')
-VariantDir(mapdir, [env['FQDIR'], os.path.dirname(env['GENOME'])], duplicate = 0)
-VariantDir(netdir, mapdir, duplicate = 0)
+#VariantDir(mapdir, [env['FQDIR'], os.path.dirname(env['GENOME'])], duplicate = 0)
+#VariantDir(netdir, mapdir, duplicate = 0)
 #env.SConscript('mapping/SConscript', variant_dir=env['OUTDIR'], exports='env')
 #env.SConscript('network/SConscript', variant_dir=env['OUTDIR'], exports='env')
-env.SConscript(['mapping/SConscript'], variant_dir=mapdir, exports='env')
-env.SConscript(['network/SConscript'], variant_dir=netdir, exports='env')
+env.SConscript(['mapping/SConscript'], variant_dir=mapdir, exports='env', duplicate=0)
+env.SConscript(['network/SConscript'], variant_dir=netdir, exports='env', duplicate=0)
 
 #env.SConscript(['mapping/SConscript', 'network/SConscript'], exports='env')
 
