@@ -84,8 +84,8 @@ env.Append(BUILDERS = builders)
 
 #VariantDir(env['MAPDIR'], [env['FQDIR'], os.path.dirname(env['GENOME'])], duplicate=0)
 #VariantDir(env['NETDIR'], env['MAPDIR'], duplicate=0)
-SConscript('mapping/SConscript', variant_dir=env['OUTDIR'], exports='env')
-SConscript('network/SConscript', variant_dir=env['OUTDIR'], exports='env')
+SConscript('mapping/SConscript', exports='env')
+SConscript('network/SConscript', exports='env')
 
 
 Export('env')
