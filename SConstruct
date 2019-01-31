@@ -78,5 +78,10 @@ builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'Network':network_builder}
 env.Append(BUILDERS = builders)
 
-env.SConscript(['mapping/SConscript', 'network/SConscript'], exports='env')
+
+env.SConscript('mapping/SConscript', variant_dir=env['OUTDIR'])
+env.SConscript('network/SConscript', variant_dir=env['OUTDIR'])
+
+#env.SConscript(['mapping/SConscript', 'network/SConscript'], exports='env')
+
 Export('env')
