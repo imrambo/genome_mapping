@@ -1,114 +1,114 @@
 #! /usr/bin/env python3
-Import('env')
-import glob
-import os
-import gzip
-import re
-from itertools import islice
-from warnings import warn
-
-'''
-2019 Ian Rambo
-Thirteen... that's a mighty unlucky number... for somebody!
-
-Map reads with bwa-mem and convert to reduced SAM and BAM.
-'''
-#------------------------------------------------------------------------------
-def find_fastq_pairs(fastq_list, nslice = 800):
-    '''
-    Match paired-end FASTQ reads using header information.
-    '''
-    if nslice % 4:
-        warn('WARNING: --nslice is not a multiple of 4')
-
-    fastq_dict = {}
-    interleaved = False
-    for fastq in fastq_list:
-        with gzip.open(fastq, 'r') as fq:
-            head_list = [l.decode('utf-8').split() for l in islice(fq, nslice) if l.decode('utf-8').startswith('@')]
-
-            if all([head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]):
-                interleaved = True
-            if all([head_list[n-1][0] != head_list[n][0] for n in range(1, len(head_list), 2)]):
-                interleaved = False
-
-            if interleaved:
-                print('%s: interleaved FASTQ' % os.path.basename(fastq))
-                if not head_list[0][0] in fastq_dict:
-                    fastq_dict[head_list[0][0]] = {}
-                    fastq_dict[head_list[0][0]]['R1'] = fastq
-                    fastq_dict[head_list[0][0]]['R2'] = 'interleaved'
-                else:
-                    pass
-            else:
-                print('%s: non-interleaved FASTQ' % os.path.basename(fastq))
-                if head_list[0][0] in fastq_dict:
-                    if head_list[0][1].startswith('1'):
-                        fastq_dict[head_list[0][0]]['R1'] = fastq
-                    elif head_list[0][1].startswith('2'):
-                        fastq_dict[head_list[0][0]]['R2'] = fastq
-                    else:
-                        print('please check if header is in format Casava 1.8+')
-                else:
-                    fastq_dict[head_list[0][0]] = {}
-                    if head_list[0][1].startswith('1'):
-                        fastq_dict[head_list[0][0]]['R1'] = fastq
-                    elif head_list[0][1].startswith('2'):
-                        fastq_dict[head_list[0][0]]['R2'] = fastq
-                    else:
-                        print('please check if header is in format Casava 1.8+')
-    for key in fastq_dict:
-        if not fastq_dict[key]['R2'] or not fastq_dict[key]['R1']:
-            solo = [fastq_dict[key][v] for v in fastq_dict[key]][0]
-            warn("""one is the loneliest number that you'll ever doooooo...
-            so find a pair for %s if they are paired-end reads...""" % solo)
-
-    return fastq_dict
-#------------------------------------------------------------------------------
-####
-####    MAIN
-####
-#------------------------------------------------------------------------------
-#Index the genome file
-bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
-Command(bwa_index_targets, env['GENOME'], 'bwa index $SOURCE')
-#------------------------------------------------------------------------------
-#Generate list of input FASTQ files using sample IDs
-fastq_list = list()
-
-if ',' in env['SIDS']:
-    id_list = env['SIDS'].split(',')
-    for i in id_list:
-        idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % i)
-        fastq_list.extend(list(glob.iglob(idGlob, recursive = False)))
-else:
-    idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % id)
-    fastq_list.extend(list(glob.iglob(idGlob, recursive = False)))
-
-env.Replace(FQLIST=fastq_list)
-#------------------------------------------------------------------------------
-maptarg = list()
-fastq_dict = find_fastq_pairs(env['FQLIST'], nslice = env['NSLICE'])
-#print(fastq_dict)
-for key in fastq_dict:
-    mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
-    if fastq_dict[key]['R2'] == 'interleaved':
-        #print('mapping for interleaved FASTQ')
-        #mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
-        env.BWA_Samtools_Intl(mapping_targets, [env['GENOME'], fastq_dict[key]['R1']])
-        maptarg.extend(mapping_targets)
-
-    else:
-        #print('mapping for non-interleaved FASTQ')
-        #mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
-        env.BWA_Samtools_R1R2(mapping_targets, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
-        maptarg.extend(mapping_targets)
-
-env.Replace(MAPTARG = maptarg)
-#------------------------------------------------------------------------------
-#Depth file
-depthfile_target = os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov')
-depthfile_sources = [m for m in env['MAPTARG'] if re.match(r'.*?\.reduced\.bam', m)]
-
-env.Depthfile(depthfile_target, depthfile_sources)
-Export('env')
+# Import('env')
+# import glob
+# import os
+# import gzip
+# import re
+# from itertools import islice
+# from warnings import warn
+#
+# '''
+# 2019 Ian Rambo
+# Thirteen... that's a mighty unlucky number... for somebody!
+#
+# Map reads with bwa-mem and convert to reduced SAM and BAM.
+# '''
+# #------------------------------------------------------------------------------
+# def find_fastq_pairs(fastq_list, nslice = 800):
+#     '''
+#     Match paired-end FASTQ reads using header information.
+#     '''
+#     if nslice % 4:
+#         warn('WARNING: --nslice is not a multiple of 4')
+#
+#     fastq_dict = {}
+#     interleaved = False
+#     for fastq in fastq_list:
+#         with gzip.open(fastq, 'r') as fq:
+#             head_list = [l.decode('utf-8').split() for l in islice(fq, nslice) if l.decode('utf-8').startswith('@')]
+#
+#             if all([head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]):
+#                 interleaved = True
+#             if all([head_list[n-1][0] != head_list[n][0] for n in range(1, len(head_list), 2)]):
+#                 interleaved = False
+#
+#             if interleaved:
+#                 print('%s: interleaved FASTQ' % os.path.basename(fastq))
+#                 if not head_list[0][0] in fastq_dict:
+#                     fastq_dict[head_list[0][0]] = {}
+#                     fastq_dict[head_list[0][0]]['R1'] = fastq
+#                     fastq_dict[head_list[0][0]]['R2'] = 'interleaved'
+#                 else:
+#                     pass
+#             else:
+#                 print('%s: non-interleaved FASTQ' % os.path.basename(fastq))
+#                 if head_list[0][0] in fastq_dict:
+#                     if head_list[0][1].startswith('1'):
+#                         fastq_dict[head_list[0][0]]['R1'] = fastq
+#                     elif head_list[0][1].startswith('2'):
+#                         fastq_dict[head_list[0][0]]['R2'] = fastq
+#                     else:
+#                         print('please check if header is in format Casava 1.8+')
+#                 else:
+#                     fastq_dict[head_list[0][0]] = {}
+#                     if head_list[0][1].startswith('1'):
+#                         fastq_dict[head_list[0][0]]['R1'] = fastq
+#                     elif head_list[0][1].startswith('2'):
+#                         fastq_dict[head_list[0][0]]['R2'] = fastq
+#                     else:
+#                         print('please check if header is in format Casava 1.8+')
+#     for key in fastq_dict:
+#         if not fastq_dict[key]['R2'] or not fastq_dict[key]['R1']:
+#             solo = [fastq_dict[key][v] for v in fastq_dict[key]][0]
+#             warn("""one is the loneliest number that you'll ever doooooo...
+#             so find a pair for %s if they are paired-end reads...""" % solo)
+#
+#     return fastq_dict
+# #------------------------------------------------------------------------------
+# ####
+# ####    MAIN
+# ####
+# #------------------------------------------------------------------------------
+# #Index the genome file
+# bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
+# Command(bwa_index_targets, env['GENOME'], 'bwa index $SOURCE')
+# #------------------------------------------------------------------------------
+# #Generate list of input FASTQ files using sample IDs
+# fastq_list = list()
+#
+# if ',' in env['SIDS']:
+#     id_list = env['SIDS'].split(',')
+#     for i in id_list:
+#         idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % i)
+#         fastq_list.extend(list(glob.iglob(idGlob, recursive = False)))
+# else:
+#     idGlob = os.path.join(os.path.abspath(env['FQDIR']), '%s*.fastq.gz' % id)
+#     fastq_list.extend(list(glob.iglob(idGlob, recursive = False)))
+#
+# env.Replace(FQLIST=fastq_list)
+# #------------------------------------------------------------------------------
+# maptarg = list()
+# fastq_dict = find_fastq_pairs(env['FQLIST'], nslice = env['NSLICE'])
+# #print(fastq_dict)
+# for key in fastq_dict:
+#     mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
+#     if fastq_dict[key]['R2'] == 'interleaved':
+#         #print('mapping for interleaved FASTQ')
+#         #mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
+#         env.BWA_Samtools_Intl(mapping_targets, [env['GENOME'], fastq_dict[key]['R1']])
+#         maptarg.extend(mapping_targets)
+#
+#     else:
+#         #print('mapping for non-interleaved FASTQ')
+#         #mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
+#         env.BWA_Samtools_R1R2(mapping_targets, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
+#         maptarg.extend(mapping_targets)
+#
+# env.Replace(MAPTARG = maptarg)
+# #------------------------------------------------------------------------------
+# #Depth file
+# depthfile_target = os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov')
+# depthfile_sources = [m for m in env['MAPTARG'] if re.match(r'.*?\.reduced\.bam', m)]
+#
+# env.Depthfile(depthfile_target, depthfile_sources)
+# Export('env')
