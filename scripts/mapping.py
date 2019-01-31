@@ -37,6 +37,7 @@ parser.add_argument('--nslice', dest = 'nslice', type = int, nargs = 1, action =
 help = 'number of fastq headers to slice for determining if interleaved.')
 
 args = parser.parse_args()
+print(args)
 #=============================================================================
 #Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':args.bwa_thread}
