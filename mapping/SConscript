@@ -89,17 +89,17 @@ env.Replace(FQLIST=fastq_list)
 #------------------------------------------------------------------------------
 maptarg = list()
 fastq_dict = find_fastq_pairs(env['FQLIST'], nslice = env['NSLICE'])
-print(fastq_dict)
+#print(fastq_dict)
 for key in fastq_dict:
     mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
     if fastq_dict[key]['R2'] == 'interleaved':
-        print('mapping for interleaved FASTQ')
+        #print('mapping for interleaved FASTQ')
         #mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
         env.BWA_Samtools_Intl(mapping_targets, [env['GENOME'], fastq_dict[key]['R1']])
         maptarg.extend(mapping_targets)
 
     else:
-        print('mapping for non-interleaved FASTQ')
+        #print('mapping for non-interleaved FASTQ')
         #mapping_targets = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
         env.BWA_Samtools_R1R2(mapping_targets, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
         maptarg.extend(mapping_targets)
