@@ -81,8 +81,8 @@ env.Append(BUILDERS = builders)
 
 #env.SConscript('mapping/SConscript', variant_dir=env['OUTDIR'], exports='env')
 #env.SConscript('network/SConscript', variant_dir=env['OUTDIR'], exports='env')
-env.SConscript('mapping/SConscript', exports='env', variant_dir=env['OUTDIR'])
-env.SConscript('network/SConscript', exports='env', variant_dir=env['OUTDIR'])
+env.SConscript('mapping/SConscript', exports='env')
+env.SConscript('network/SConscript', exports='env')
 
 #env.SConscript(['mapping/SConscript', 'network/SConscript'], exports='env')
 
