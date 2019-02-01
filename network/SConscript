@@ -1,14 +1,14 @@
 #! /usr/bin/env python3
-Import('env')
-import os
-'''
-2019 Ian Rambo
-Thirteen... that's a mighty unlucky number... for somebody!
-
-Create a network file for mmgenome1
-'''
-
-network_source = [m for m in env['MAPTARG'] if env['NETSAM'] in m and m.endswith('.bam')][0]
-
-network_target = os.path.join(env['OUTDIR'], env['NETSAM'] + '.txt')
-env.Network(network_target, network_source)
+# Import('env')
+# import os
+# '''
+# 2019 Ian Rambo
+# Thirteen... that's a mighty unlucky number... for somebody!
+#
+# Create a network file for mmgenome1
+# '''
+#
+# network_source = [m for m in env['MAPTARG'] if env['NETSAM'] in m and m.endswith('.bam')][0]
+#
+# network_target = os.path.join(env['OUTDIR'], env['NETSAM'] + '.txt')
+# env.Network(network_target, network_source)
