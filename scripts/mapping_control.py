@@ -59,32 +59,34 @@ else:
     pass
 #=============================================================================
 #Index the genome file
+print('indexing %s' % args['genome'][0])
 bwa_index(args['genome'][0])
 #------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
-fastq_list = source_list_generator(args['sids'], args['fastq_dir'], '.fastq.gz')
+fastq_list = source_list_generator(args['sids'][0], args['fastq_dir'][0], '.fastq.gz')
 #------------------------------------------------------------------------------
 mapping_targets = list()
-fastq_dict = find_fastq_pairs(fastq_list, nslice = args['nslice']*4)
+fastq_dict = find_fastq_pairs(fastq_list, nslice = args['nslice'][0]*4)
 
 for key in fastq_dict:
-    maptarg = [os.path.join(args['outdir'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
+    maptarg = [os.path.join(args['outdir'][0], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
     if fastq_dict[key]['R2'] == 'interleaved':
-        bwa_sam_intl(targets = maptarg, sources = [args['genome'], fastq_dict[key]['R1']], bopts = bwa_optstring, sopts = samtools_sort_optstring)
+        bwa_sam_intl(targets = maptarg, sources = [args['genome'][0], fastq_dict[key]['R1']], bopts = bwa_optstring, sopts = samtools_sort_optstring)
         mapping_targets.extend(maptarg)
 
     else:
-        bwa_sam_r1r2(targets = maptarg, sources = [args['genome'], fastq_dict[key]['R1'], fastq_dict[key]['R2']], bopts = bwa_optstring, sopts = samtools_sort_optstring)
+        bwa_sam_r1r2(targets = maptarg, sources = [args['genome'][0], fastq_dict[key]['R1'], fastq_dict[key]['R2']], bopts = bwa_optstring, sopts = samtools_sort_optstring)
         mapping_targets.extend(maptarg)
 #------------------------------------------------------------------------------
 #Depth file
-depthfile_target = os.path.join(args['outdir'], os.path.splitext(os.path.basename(args['genome']))[0] + '_cov')
+depthfile_target = os.path.join(args['outdir'][0], os.path.splitext(os.path.basename(args['genome'][0]))[0] + '_cov')
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.reduced\.bam', m)]
 
+print('creating target depth file: %s from source BAM(s): %s' % (depthfile_target, ','.join(depthfile_sources)))
 depth_file(target = depthfile_target, sources = depthfile_sources, opts = depthfile_optstring)
 #------------------------------------------------------------------------------
 #Network file
-network_source = [m for m in mapping_targets if args['netsam'] in m and m.endswith('.sam')][0]
-network_target = os.path.join(args['outdir'], args['netsam'] + '.txt')
-
+network_source = [m for m in mapping_targets if args['netsam'][0] in m and m.endswith('.sam')][0]
+network_target = os.path.join(args['outdir'][0], args['netsam'][0] + '.txt')
+print('creating target network file %s from source SAM: %s' % (network_target, network_source))
 network_file(target = network_target, source = network_source)
