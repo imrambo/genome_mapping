@@ -73,7 +73,7 @@ bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation; additional options must be added to this dict
 depthfile_opts = {'--noIntraDepthVariance':''}
-depthfile_action = 'src/jgi_summarize_bam_contig_depth --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
+depthfile_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
 depthfile_builder = Builder(action = depthfile_action)
 #------------------------------------------------------------------------------
 #Builder for network file
