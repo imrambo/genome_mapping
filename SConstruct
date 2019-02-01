@@ -4,10 +4,13 @@ import gzip
 import re
 from itertools import islice
 from warnings import warn
+import sys
 '''
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
+#Add scripts directory to path
+sys.path.insert(0, os.path.abspath('./src'))
 #=============================================================================
 def optstring_join(optdict):
     """
