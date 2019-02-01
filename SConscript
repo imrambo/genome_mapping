@@ -40,5 +40,5 @@ env.Depthfile(depthfile_target, depthfile_sources)
 #------------------------------------------------------------------------------
 network_source = [m for m in mapping_targets if env['NETSAM'] in m and m.endswith('.bam')][0]
 
-network_target = env['NETSAM'] + '.txt'
+network_target = env['NETSAM'] + '_network.txt'
 env.Network(network_target, network_source)
