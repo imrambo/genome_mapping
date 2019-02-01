@@ -49,16 +49,14 @@ if GetOption('help'):
     Help(BUILD_HELP)
 #------------------------------------------------------------------------------
 #Initialize environment
-env = Environment(GENOME=GetOption('genome'),
-                          FQDIR=GetOption('fastq_dir'),
-                          OUTDIR=GetOption('outdir'),
+env = Environment(GENOME=os.path.abspath(GetOption('genome')),
+                          FQDIR=os.path.abspath(GetOption('fastq_dir')),
+                          OUTDIR=os.path.abspath(GetOption('outdir')),
                           SIDS=GetOption('sids'),
                           NETSAM=GetOption('netsam'),
                           NSLICE=GetOption('nslice'))
 
 env.Replace(NSLICE=env['NSLICE']*4)
-#MAPDIR = os.path.join(env['OUTDIR'], 'mapping'),
-#NETDIR = os.path.join(env['OUTDIR'], 'network'))
 #=============================================================================
 ###
 ### Builders
@@ -85,6 +83,7 @@ depthfile_opts = {'--noIntraDepthVariance':''}
 depthfile_action = 'src/jgi_summarize_bam_contig_depth --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
 depthfile_builder = Builder(action = depthfile_action)
 #------------------------------------------------------------------------------
+#Builder for network file
 network_action = 'perl src/network.pl -i $SOURCE -o $TARGET'
 network_builder = Builder(action = network_action)
 #------------------------------------------------------------------------------
