@@ -53,13 +53,13 @@ depthfile_optstring = optstring_join(depthfile_opts)
 ###
 #=============================================================================
 #Create output directory if it does not exist
-if not os.path.exists(args['outdir']):
-    os.makedirs(args['outdir'])
+if not os.path.exists(args['outdir'][0]):
+    os.makedirs(args['outdir'][0])
 else:
     pass
 #=============================================================================
 #Index the genome file
-bwa_index(args['genome'])
+bwa_index(args['genome'][0])
 #------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
 fastq_list = source_list_generator(args['sids'], args['fastq_dir'], '.fastq.gz')
