@@ -6,7 +6,7 @@ import re
 from itertools import islice
 from warnings import warn
 import argparse
-from subprocess import POpen
+import subprocess
 from mapping_functions import *
 '''
 2019 Ian Rambo

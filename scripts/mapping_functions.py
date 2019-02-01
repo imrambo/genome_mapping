@@ -6,7 +6,7 @@ import re
 from itertools import islice
 from warnings import warn
 import argparse
-from subprocess import POpen
+import subprocess
 """
 2019 Ian Rambo
 """
@@ -75,7 +75,7 @@ def bwa_index(source):
     Index a FASTA file for BWA mapping.
     """
     bwa_index_action = 'bwa index %s' % source
-    p = subprocess.POpen(bwa_index_action, shell = True)
+    p = subprocess.Popen(bwa_index_action, shell = True)
     return None
 #------------------------------------------------------------------------------
 def bwa_sam_intl(targets, sources, bopts, sopts):
@@ -84,7 +84,7 @@ def bwa_sam_intl(targets, sources, bopts, sopts):
     interleaved FASTQ files.
     """
     bwa_samtools_intl_action = 'bwa mem %s %s -p %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bopts, sources[0], sources[1], targets[0], sopts, targets[1])
-    p = subprocess.POpen(bwa_samtools_intl_action, shell = True)
+    p = subprocess.Popen(bwa_samtools_intl_action, shell = True)
     return None
 #------------------------------------------------------------------------------
 def bwa_sam_r1r2(targets, sources, bopts, sopts):
@@ -93,7 +93,7 @@ def bwa_sam_r1r2(targets, sources, bopts, sopts):
     non-interleaved FASTQ files.
     """
     bwa_samtools_r1r2_action = 'bwa mem %s %s %s %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bopts, ' '.join(sources), targets[0], sopts, targets[1])
-    p = subprocess.POpen(bwa_samtools_r1r2_action, shell = True)
+    p = subprocess.Popen(bwa_samtools_r1r2_action, shell = True)
     return None
 #------------------------------------------------------------------------------
 def depth_file(target, sources, opts):
@@ -101,7 +101,7 @@ def depth_file(target, sources, opts):
     Create a depth file from one or more BAM files.
     """
     depthfile_action = 'src/jgi_summarize_bam_contig_depth --outputDepth %s %s %s' % (target, ' '.join(sources), opts)
-    p = subprocess.POpen(depthfile_action, shell = True)
+    p = subprocess.Popen(depthfile_action, shell = True)
     return None
 #------------------------------------------------------------------------------
 def network_file(target, source):
@@ -109,7 +109,7 @@ def network_file(target, source):
     Create a network file for MMGenome1. Requires a SAM file as input.
     """
     network_action = 'perl src/network.pl -i %s -o %s' % (source, target)
-    p = subprocess.POpen(network_action, shell = True)
+    p = subprocess.Popen(network_action, shell = True)
     return None
 #------------------------------------------------------------------------------
 def source_list_generator(id_string, source_dir, extension):
