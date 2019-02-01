@@ -92,7 +92,7 @@ def bwa_sam_r1r2(targets, sources, bopts, sopts):
     Pipe for bwa-mem and samtools producing reduced SAM and BAM using
     non-interleaved FASTQ files.
     """
-    bwa_samtools_r1r2_action = 'bwa mem %s %s %s %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bopts, ' '.join(sources), targets[0], sopts, targets[1])
+    bwa_samtools_r1r2_action = 'bwa mem %s %s | samtools view -hS -F4 - | tee %s | samtools view -huS - | samtools sort %s - -o %s' % (bopts, ' '.join(sources), targets[0], sopts, targets[1])
     p = subprocess.Popen(bwa_samtools_r1r2_action, shell = True)
     return None
 #------------------------------------------------------------------------------
