@@ -20,8 +20,8 @@ mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nslice = env['NSLICE'])
 
 for key in fastq_dict:
-    maptarg = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
-    #mapping_targets = [os.path.join(env['MAPDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
+    #maptarg = [os.path.join(env['OUTDIR'], os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
+    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x) for x in ['.reduced.sam', '.reduced.bam']]
     if fastq_dict[key]['R2'] == 'interleaved':
         env.BWA_Samtools_Intl(maptarg, [env['GENOME'], fastq_dict[key]['R1']])
         mapping_targets.extend(maptarg)
