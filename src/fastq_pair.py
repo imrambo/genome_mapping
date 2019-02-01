@@ -4,6 +4,11 @@ import gzip
 import re
 from itertools import islice
 from warnings import warn
+
+'''
+2019 Ian Rambo
+Thirteen... that's a mighty unlucky number... for somebody!
+'''
 #------------------------------------------------------------------------------
 def find_fastq_pairs(fastq_list, nslice = 800):
     '''
