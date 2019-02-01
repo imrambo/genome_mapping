@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import glob
 import os
 import gzip
@@ -16,7 +17,8 @@ def find_fastq_pairs(fastq_list, nslice = 800):
     '''
     if nslice % 4:
         warn('--nslice is not a multiple of 4')
-
+    if nslice < 16:
+        warn('slice more than four headers')
     fastq_dict = {}
     interleaved = False
     for fastq in fastq_list:

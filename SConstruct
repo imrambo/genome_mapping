@@ -40,13 +40,6 @@ AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
 AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. Must be even.')
-
-BUILD_HELP =""" Usage: scons --fastq_dir=/path/to/fastq/files --genome=/path/to/genome
---outdir=/path/to/output/directory --interleaved=0/1 --sampleids=FOO,BAR,BAZ --netsam=FOO42
-"""
-
-if GetOption('help'):
-    Help(BUILD_HELP)
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(GENOME=os.path.abspath(GetOption('genome')),
