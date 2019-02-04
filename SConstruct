@@ -40,6 +40,8 @@ AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
 AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. Must be even.')
+AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
+help = 'output directory for samtools sort temporary files')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(GENOME=os.path.abspath(GetOption('genome')),
@@ -56,7 +58,7 @@ env.Replace(NSLICE=env['NSLICE']*4)
 ###
 #Options for bwa mem, samtools sort
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
-samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem')}
+samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
 #------------------------------------------------------------------------------
 bwa_optstring = optstring_join(bwa_mem_opts)
 samtools_sort_optstring = optstring_join(samtools_sort_opts)
