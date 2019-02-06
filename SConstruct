@@ -5,6 +5,8 @@ import re
 from itertools import islice
 from warnings import warn
 import sys
+import atexit
+
 '''
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
@@ -18,6 +20,24 @@ def optstring_join(optdict):
     """
     optstring = ' '.join([str(param) + ' ' + str(val) for param, val in optdict.items()])
     return optstring
+#------------------------------------------------------------------------------
+def remove_build_targets(tmpdir):
+    """
+    Remove intermediate build targets within a specified temporary directory.
+    """
+    print('removing intermediate build targets...')
+    for tmp in [os.path.join(tmpdir, os.path.basename(str(t))) for t in BUILD_TARGETS]:
+        if os.path.isfile(tmp):
+            print('removing %s' % tmp)
+            os.remove(tmp)
+        else:
+            pass
+    if not os.listdir(tmpdir):
+        print('removing empty directory: %s' % tmpdir)
+        os.rmdir(tmpdir)
+    else:
+        pass
+    return None
 #=============================================================================
 #Command line options and Environment
 AddOption('--fastq_dir', dest='fastq_dir', type='string', nargs=1,
@@ -42,6 +62,8 @@ AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store'
 help = 'number of headers from fastq file for determining if interleaved. Must be even.')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
 help = 'output directory for samtools sort temporary files')
+AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
+action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory.')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(GENOME=os.path.abspath(GetOption('genome')),
@@ -51,6 +73,7 @@ env = Environment(GENOME=os.path.abspath(GetOption('genome')),
                           NETSAM=GetOption('netsam'),
                           NSLICE=GetOption('nslice'))
 
+#Multiply number of headers by 4 - number of FASTQ entries
 env.Replace(NSLICE=env['NSLICE']*4)
 #=============================================================================
 ###
@@ -60,17 +83,25 @@ env.Replace(NSLICE=env['NSLICE']*4)
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
 #------------------------------------------------------------------------------
+#BWA index builder, add index targets as default targets
+bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
+Default(bwa_index_targets)
+bwa_index_builder = Builder(action = 'bwa index $SOURCE')
+
+#Option strings for bwa mem, samtools sort
 bwa_optstring = optstring_join(bwa_mem_opts)
 samtools_sort_optstring = optstring_join(samtools_sort_opts)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are interleaved
-bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+#bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | samtools sort %s - - | tee ${TARGETS[0]} | samtools view -hbS - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are separate R1 and R2
-bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+#bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | samtools sort %s - - | tee ${TARGETS[0]} | samtools view -hbS - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation; additional options must be added to this dict
@@ -85,9 +116,22 @@ network_builder = Builder(action = network_action)
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
 'Depthfile':depthfile_builder,
-'Network':network_builder}
+'Network':network_builder,
+'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)
 #=============================================================================
-SConscript(['SConscript'], exports='env', variant_dir=env['OUTDIR'], duplicate=0)
+#Index the genome
+env.BWA_index(bwa_index_targets, env['GENOME'])
+
+#SConscript
+build_tmp = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_build'
+SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
+#------------------------------------------------------------------------------
+#If --rmbuild=1, remove the build targets in the temporary directory
+if GetOption('rmbuild'):
+    atexit.register(remove_targets, tmpdir = build_tmp)
+    print('Build targets will be removed in and under the SConstruct directory')
+else:
+    pass
 
 Export('env')
