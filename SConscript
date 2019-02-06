@@ -12,10 +12,6 @@ from fastq_pair import *
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
 #------------------------------------------------------------------------------
-#Index the genome file
-#bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
-#Command(bwa_index_targets, env['GENOME'], 'bwa index $SOURCE')
-#------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
 fastq_list = source_list_generator(env['SIDS'], env['FQDIR'], '.fastq.gz')
 #------------------------------------------------------------------------------
@@ -23,7 +19,7 @@ mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nslice = env['NSLICE'])
 
 for key in fastq_dict:
-    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sam', '.reduced.sorted.bam']]
+    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sorted.sam', '.reduced.sorted.bam']]
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
@@ -35,7 +31,7 @@ for key in fastq_dict:
 #------------------------------------------------------------------------------
 #Depth file
 depthfile_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov'
-depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.reduced\.bam', m)]
+depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
 
 Default(env.Install(env['OUTDIR'], depthfile_target))
 env.Depthfile(depthfile_target, depthfile_sources)
