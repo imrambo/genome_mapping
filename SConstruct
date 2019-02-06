@@ -129,7 +129,7 @@ SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
 #------------------------------------------------------------------------------
 #If --rmbuild=1, remove the build targets in the temporary directory
 if GetOption('rmbuild'):
-    atexit.register(remove_targets, tmpdir = build_tmp)
+    atexit.register(remove_build_targets, tmpdir = build_tmp)
     print('Build targets will be removed in and under the SConstruct directory')
 else:
     pass
