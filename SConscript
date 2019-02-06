@@ -13,8 +13,8 @@ Thirteen... that's a mighty unlucky number... for somebody!
 '''
 #------------------------------------------------------------------------------
 #Index the genome file
-bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
-Command(bwa_index_targets, env['GENOME'], 'bwa index $SOURCE')
+#bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
+#Command(bwa_index_targets, env['GENOME'], 'bwa index $SOURCE')
 #------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
 fastq_list = source_list_generator(env['SIDS'], env['FQDIR'], '.fastq.gz')

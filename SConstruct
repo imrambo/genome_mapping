@@ -83,6 +83,10 @@ env.Replace(NSLICE=env['NSLICE']*4)
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
 #------------------------------------------------------------------------------
+bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
+Default(bwa_index_targets)
+bwa_index_builder = Builder(action = 'bwa index $SOURCE')
+
 bwa_optstring = optstring_join(bwa_mem_opts)
 samtools_sort_optstring = optstring_join(samtools_sort_opts)
 
@@ -108,9 +112,11 @@ network_builder = Builder(action = network_action)
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
 'Depthfile':depthfile_builder,
-'Network':network_builder}
+'Network':network_builder,
+'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)
 #=============================================================================
+env.BWA_index(bwa_index_targets, env['GENOME'])
 #SConscript
 build_tmp = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_build'
 SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
