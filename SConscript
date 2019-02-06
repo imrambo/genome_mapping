@@ -14,7 +14,6 @@ Thirteen... that's a mighty unlucky number... for somebody!
 #------------------------------------------------------------------------------
 #Index the genome file
 bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
-Default(bwa_index_targets)
 Command(bwa_index_targets, env['GENOME'], 'bwa index $SOURCE')
 #------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
