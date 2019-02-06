@@ -5,6 +5,8 @@ import re
 from itertools import islice
 from warnings import warn
 import sys
+import atexit
+
 '''
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
@@ -18,6 +20,24 @@ def optstring_join(optdict):
     """
     optstring = ' '.join([str(param) + ' ' + str(val) for param, val in optdict.items()])
     return optstring
+#------------------------------------------------------------------------------
+def remove_build_targets(tmpdir):
+    """
+    Remove intermediate build targets within a specified temporary directory.
+    """
+    print('removing intermediate build targets...')
+    for tmp in [os.path.join(tmpdir, os.path.basename(str(t))) for t in BUILD_TARGETS]:
+        if os.path.isfile(tmp):
+            print('removing %s' % tmp)
+            os.remove(tmp)
+        else:
+            pass
+    if not os.listdir(tmpdir):
+        print('removing empty directory: %s' % tmpdir)
+        os.rmdir(tmpdir)
+    else:
+        pass
+    return None
 #=============================================================================
 #Command line options and Environment
 AddOption('--fastq_dir', dest='fastq_dir', type='string', nargs=1,
@@ -42,6 +62,8 @@ AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store'
 help = 'number of headers from fastq file for determining if interleaved. Must be even.')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
 help = 'output directory for samtools sort temporary files')
+AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
+action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in and under the SConstruct directory.')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(GENOME=os.path.abspath(GetOption('genome')),
@@ -51,6 +73,7 @@ env = Environment(GENOME=os.path.abspath(GetOption('genome')),
                           NETSAM=GetOption('netsam'),
                           NSLICE=GetOption('nslice'))
 
+#Multiply number of headers by 4 - number of FASTQ entries
 env.Replace(NSLICE=env['NSLICE']*4)
 #=============================================================================
 ###
@@ -88,6 +111,16 @@ builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'Network':network_builder}
 env.Append(BUILDERS = builders)
 #=============================================================================
-SConscript(['SConscript'], exports='env', variant_dir=env['OUTDIR'], duplicate=0)
+#SConscript
+build_tmp = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_build'
+SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
+
+#------------------------------------------------------------------------------
+#If --rmbuild=1, remove the build targets in the temporary directory
+if GetOption('rmbuild'):
+    atexit.register(remove_targets, tmpdir = build_tmp)
+    print('Build targets will be removed in and under the SConstruct directory')
+else:
+    pass
 
 Export('env')
