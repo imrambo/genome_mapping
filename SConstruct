@@ -25,7 +25,7 @@ def remove_build_targets(tmpdir):
     """
     Remove intermediate build targets within a specified temporary directory.
     """
-    print('removing intermediate build targets...')
+    print('removing intermediate build targets in %s' % os.path.abspath(tmpdir))
     for tmp in [os.path.join(tmpdir, os.path.basename(str(t))) for t in BUILD_TARGETS]:
         if os.path.isfile(tmp):
             print('removing %s' % tmp)
@@ -130,7 +130,7 @@ SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
 #If --rmbuild=1, remove the build targets in the temporary directory
 if GetOption('rmbuild'):
     atexit.register(remove_build_targets, tmpdir = build_tmp)
-    print('Build targets will be removed in and under the SConstruct directory')
+
 else:
     pass
 
