@@ -30,7 +30,7 @@ for key in fastq_dict:
         env.BWA_Samtools_R1R2(maptarg, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
 #------------------------------------------------------------------------------
 #Depth file
-depthfile_net_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + 'noIntDepthVar_cov'
+depthfile_net_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_noIntDepthVar_cov'
 depthfile_bin_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov'
 
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
