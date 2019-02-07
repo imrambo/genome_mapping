@@ -81,7 +81,7 @@ env.Replace(NSLICE=env['NSLICE']*4)
 #OPTION DICTIONARIES
 #Options for bwa mem, samtools sort, jgi coverage
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
-samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'))}
+samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem')}
 depthfile_opts_net = {'--noIntraDepthVariance':''}
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
