@@ -79,9 +79,12 @@ env.Replace(NSLICE=env['NSLICE']*4)
 ###
 ### Builders
 ###
-#Options for bwa mem, samtools sort
+
+#OPTION DICTIONARIES
+#Options for bwa mem, samtools sort, jgi coverage
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
+depthfile_opts = {'--noIntraDepthVariance':''}
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
 bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
@@ -105,7 +108,6 @@ bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]}
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation; additional options must be added to this dict
-depthfile_opts = {'--noIntraDepthVariance':''}
 depthfile_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
 depthfile_builder = Builder(action = depthfile_action)
 #------------------------------------------------------------------------------
