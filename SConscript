@@ -19,7 +19,7 @@ mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nslice = env['NSLICE'])
 
 for key in fastq_dict:
-    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sorted.sam', '.reduced.sorted.bam']]
+    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sam', '.reduced.sorted.bam']]
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
@@ -30,11 +30,16 @@ for key in fastq_dict:
         env.BWA_Samtools_R1R2(maptarg, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
 #------------------------------------------------------------------------------
 #Depth file
-depthfile_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov'
+depthfile_net_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + 'noIntDepthVar_cov'
+depthfile_bin_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov'
+
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
 
-Default(env.Install(env['OUTDIR'], depthfile_target))
-env.Depthfile(depthfile_target, depthfile_sources)
+Default(env.Install(env['OUTDIR'], depthfile_net_target))
+Default(env.Install(env['OUTDIR'], depthfile_bin_target))
+
+env.Depthfile_Net(depthfile_net_target, depthfile_sources)
+env.Depthfile_Bin(depthfile_bin_target, depthfile_sources)
 #------------------------------------------------------------------------------
 network_source = [m for m in mapping_targets if env['NETSAM'] in m and m.endswith('.sam')][0]
 

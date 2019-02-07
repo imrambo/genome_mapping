@@ -60,8 +60,6 @@ AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
 AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. Must be even.')
-AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
-help = 'output directory for samtools sort temporary files')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory.')
 #------------------------------------------------------------------------------
@@ -83,8 +81,8 @@ env.Replace(NSLICE=env['NSLICE']*4)
 #OPTION DICTIONARIES
 #Options for bwa mem, samtools sort, jgi coverage
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
-samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
-depthfile_opts = {'--noIntraDepthVariance':''}
+samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'))}
+depthfile_opts_net = {'--noIntraDepthVariance':''}
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
 bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
@@ -97,19 +95,20 @@ samtools_sort_optstring = optstring_join(samtools_sort_opts)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are interleaved
-#bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
-bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | samtools sort %s - - | tee ${TARGETS[0]} | samtools view -hbS - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are separate R1 and R2
-#bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
-bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | samtools sort %s - - | tee ${TARGETS[0]} | samtools view -hbS - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation; additional options must be added to this dict
-depthfile_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
-depthfile_builder = Builder(action = depthfile_action)
+depthfile_net_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
+depthfile_net_builder = Builder(action = depthfile_net_action)
+
+depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES'
+depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #------------------------------------------------------------------------------
 #Builder for network file
 network_action = 'perl src/network.pl -i $SOURCE -o $TARGET'
@@ -117,7 +116,8 @@ network_builder = Builder(action = network_action)
 #------------------------------------------------------------------------------
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
-'Depthfile':depthfile_builder,
+'Depthfile_Net':depthfile_net_builder,
+'Depthfile_Bin':depthfile_bin_builder,
 'Network':network_builder,
 'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)
