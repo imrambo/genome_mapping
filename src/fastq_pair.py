@@ -21,6 +21,8 @@ def find_fastq_pairs(fastq_list, nslice = 800):
         warn('slice more than four headers')
     fastq_dict = {}
     interleaved = False
+    #Multiply number of headers by 4 to fetch FASTQ entries
+    nslice = nslice * 4
     for fastq in fastq_list:
         with gzip.open(fastq, 'r') as fq:
             head_list = [l.decode('utf-8').split() for l in islice(fq, nslice) if l.decode('utf-8').startswith('@')]

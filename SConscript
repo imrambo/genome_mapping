@@ -11,6 +11,10 @@ from fastq_pair import *
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
+bwa_index_targets = [env['GENOME'] + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
+Default(bwa_index_targets)
+#Index the genome
+env.BWA_index(bwa_index_targets, env['GENOME'])
 #------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
 fastq_list = source_list_generator(env['SIDS'], env['FQDIR'], '.fastq.gz')

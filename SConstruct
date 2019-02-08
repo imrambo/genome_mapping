@@ -61,18 +61,15 @@ help = 'memory per thread for samtools sort. Specify an integer with K, M, or G 
 AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. Must be even.')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
-action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory.')
+action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove)')
 #------------------------------------------------------------------------------
 #Initialize environment
-env = Environment(GENOME=os.path.abspath(GetOption('genome')),
-                          FQDIR=os.path.abspath(GetOption('fastq_dir')),
-                          OUTDIR=os.path.abspath(GetOption('outdir')),
+env = Environment(GENOME=GetOption('genome'),
+                          FQDIR=GetOption('fastq_dir'),
+                          OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
                           NETSAM=GetOption('netsam'),
                           NSLICE=GetOption('nslice'))
-
-#Multiply number of headers by 4 - number of FASTQ entries
-env.Replace(NSLICE=env['NSLICE']*4)
 #=============================================================================
 ###
 ### Builders
@@ -85,8 +82,6 @@ samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_
 depthfile_opts_net = {'--noIntraDepthVariance':''}
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
-bwa_index_targets = [os.path.abspath(env['GENOME']) + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
-Default(bwa_index_targets)
 bwa_index_builder = Builder(action = 'bwa index $SOURCE')
 
 #Option strings for bwa mem, samtools sort
@@ -122,12 +117,10 @@ builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)
 #=============================================================================
-#Index the genome
-env.BWA_index(bwa_index_targets, env['GENOME'])
-
 #SConscript
-build_tmp = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_build'
-SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
+if env['GENOME']:
+    build_tmp = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_build'
+    SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
 #------------------------------------------------------------------------------
 #If --rmbuild=1, remove the build targets in the temporary directory
 if GetOption('rmbuild'):
