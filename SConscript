@@ -58,6 +58,7 @@ else:
 #------------------------------------------------------------------------------
 if mapping_targets:
     print(mapping_targets)
+    print(env['NETSAM'])
     network_source = [m for m in mapping_targets if env['NETSAM'] in os.path.basename(m) and m.endswith('.sam')][0]
     network_target = env['NETSAM'] + '_network.txt'
 
