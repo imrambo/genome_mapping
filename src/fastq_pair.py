@@ -60,8 +60,9 @@ def find_fastq_pairs(fastq_list, nslice = 800):
     for key in fastq_dict:
         #if not fastq_dict[key]['R2'] or not fastq_dict[key]['R1']:
         if not 'R2' in fastq_dict or not 'R1' in fastq_dict:
-            solo = [fastq_dict[key][v] for v in fastq_dict[key]][0]
-            warn("one is the loneliest number that you'll ever doooooo... so find a pair for %s if they are paired-end reads..." % solo)
+            solo = [fastq_dict[key][v] for v in fastq_dict[key].keys()][0]
+            warning_message = "one is the loneliest number that you'll ever doooooo... so find a pair for %s if they are paired-end reads..." % solo
+            warn(warning_message)
 
     return fastq_dict
 #------------------------------------------------------------------------------
