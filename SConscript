@@ -30,8 +30,15 @@ for key in fastq_dict:
     if 'R2' in fastq_dict and fastq_dict[key]['R2'] == 'interleaved':
         env.BWA_Samtools_Intl(maptarg, [env['GENOME'], fastq_dict[key]['R1']])
 
-    else:
+    elif 'R1' in fastq_dict and 'R2' in fastq_dict and fastq_dict[key]['R2'] != 'interleaved':
         env.BWA_Samtools_R1R2(maptarg, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
+
+    elif 'R1' in fastq_dict and not 'R2' in fastq_dict:
+        warn('Non-interleaved FASTQ: R1 present, R2 absent')
+    elif not 'R1' in fastq_dict and 'R2' in fastq_dict:
+        warn('Non-interleaved FASTQ: R1 absent, R2 present')
+    else:
+        pass
 #------------------------------------------------------------------------------
 #Depth file
 depthfile_net_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_noIntDepthVar_cov'
