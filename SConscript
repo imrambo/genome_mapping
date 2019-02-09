@@ -27,7 +27,7 @@ for key in fastq_dict:
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
-    if fastq_dict[key]['R2'] == 'interleaved':
+    if 'R2' in fastq_dict and fastq_dict[key]['R2'] == 'interleaved':
         env.BWA_Samtools_Intl(maptarg, [env['GENOME'], fastq_dict[key]['R1']])
 
     else:
