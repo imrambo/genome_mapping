@@ -34,30 +34,34 @@ for key in fastq_dict:
         env.BWA_Samtools_R1R2(maptarg, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
 
     elif 'R1' in fastq_dict and not 'R2' in fastq_dict:
-        warn('Non-interleaved FASTQ: R1 present, R2 absent')
+        warn('WARNING: Non-interleaved FASTQ: R1 present, R2 absent')
     elif not 'R1' in fastq_dict and 'R2' in fastq_dict:
-        warn('Non-interleaved FASTQ: R1 absent, R2 present')
+        warn('WARNING: Non-interleaved FASTQ: R1 absent, R2 present')
     else:
         pass
 #------------------------------------------------------------------------------
 #Depth file
-depthfile_net_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_noIntDepthVar_cov'
-depthfile_bin_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov'
+if mapping_targets:
+    depthfile_net_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_noIntDepthVar_cov'
+    depthfile_bin_target = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_cov'
 
-depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
+    depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
 
-Default(env.Install(env['OUTDIR'], depthfile_net_target))
-Default(env.Install(env['OUTDIR'], depthfile_bin_target))
+    Default(env.Install(env['OUTDIR'], depthfile_net_target))
+    Default(env.Install(env['OUTDIR'], depthfile_bin_target))
 
-env.Depthfile_Net(depthfile_net_target, depthfile_sources)
-env.Depthfile_Bin(depthfile_bin_target, depthfile_sources)
+    env.Depthfile_Net(depthfile_net_target, depthfile_sources)
+    env.Depthfile_Bin(depthfile_bin_target, depthfile_sources)
+else:
+    print('No sources for depth files built, exiting...')
+    Exit(1)
 #------------------------------------------------------------------------------
 if mapping_targets:
-    network_source = [m for m in mapping_targets if env['NETSAM'] in m and m.endswith('.sam')][0]
+    network_source = [m for m in mapping_targets if env['NETSAM'] in os.path.basename(m) and m.endswith('.sam')][0]
     network_target = env['NETSAM'] + '_network.txt'
 
     Default(env.Install(env['OUTDIR'], network_target))
     env.Network(network_target, network_source)
 else:
-    print('No mapping targets specified, exiting...')
+    print('No sources for network file built, exiting...')
     Exit(1)
