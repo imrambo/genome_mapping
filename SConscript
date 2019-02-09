@@ -52,9 +52,12 @@ Default(env.Install(env['OUTDIR'], depthfile_bin_target))
 env.Depthfile_Net(depthfile_net_target, depthfile_sources)
 env.Depthfile_Bin(depthfile_bin_target, depthfile_sources)
 #------------------------------------------------------------------------------
-network_source = [m for m in mapping_targets if env['NETSAM'] in m and m.endswith('.sam')][0]
+if mapping_targets:
+    network_source = [m for m in mapping_targets if env['NETSAM'] in m and m.endswith('.sam')][0]
+    network_target = env['NETSAM'] + '_network.txt'
 
-network_target = env['NETSAM'] + '_network.txt'
-
-Default(env.Install(env['OUTDIR'], network_target))
-env.Network(network_target, network_source)
+    Default(env.Install(env['OUTDIR'], network_target))
+    env.Network(network_target, network_source)
+else:
+    print('No mapping targets specified, exiting...')
+    Exit(1)
