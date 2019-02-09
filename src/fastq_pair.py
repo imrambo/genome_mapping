@@ -58,7 +58,8 @@ def find_fastq_pairs(fastq_list, nslice = 800):
                     else:
                         print('please check if header is in format Casava 1.8+')
     for key in fastq_dict:
-        if not fastq_dict[key]['R2'] or not fastq_dict[key]['R1']:
+        #if not fastq_dict[key]['R2'] or not fastq_dict[key]['R1']:
+        if not 'R2' in fastq_dict or not 'R1' in fastq_dict:
             solo = [fastq_dict[key][v] for v in fastq_dict[key]][0]
             warn("""one is the loneliest number that you'll ever doooooo...
             so find a pair for %s if they are paired-end reads...""" % solo)
