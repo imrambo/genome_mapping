@@ -25,17 +25,22 @@ def remove_build_targets(tmpdir):
     """
     Remove intermediate build targets within a specified temporary directory.
     """
-    print('removing intermediate build targets in %s' % os.path.abspath(tmpdir))
-    for tmp in [os.path.join(tmpdir, os.path.basename(str(t))) for t in BUILD_TARGETS]:
-        if os.path.isfile(tmp):
-            print('removing %s' % tmp)
-            os.remove(tmp)
+    if os.path.exists(tmpdir):
+        print('removing intermediate build targets in %s' % os.path.abspath(tmpdir))
+        for tmp in [os.path.join(tmpdir, os.path.basename(str(t))) for t in BUILD_TARGETS]:
+            if os.path.isfile(tmp):
+                print('removing %s' % tmp)
+                os.remove(tmp)
+            else:
+                pass
+
+        if not os.listdir(tmpdir):
+            print('removing empty directory: %s' % tmpdir)
+            os.rmdir(tmpdir)
         else:
-            pass
-    if not os.listdir(tmpdir):
-        print('removing empty directory: %s' % tmpdir)
-        os.rmdir(tmpdir)
+            print('directory %s is not empty' % tmpdir)
     else:
+        print('%s does not exist' % tmpdir)
         pass
     return None
 #=============================================================================
