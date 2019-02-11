@@ -35,13 +35,12 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
         int_test_list = [head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]
         if all(int_test_list):
             interleaved = True
+            print('%s: interleaved FASTQ' % os.path.basename(fastq))
         #if all([head_list[n-1][0] != head_list[n][0] for n in range(1, len(head_list), 2)]):
         else:
             interleaved = False
-            print('file %s not interleaved: %d of %d read pairs were interleaved' % (fastq, sum(int_test_list), len(int_test_list)))
 
         if interleaved:
-            print('%s: interleaved FASTQ' % os.path.basename(fastq))
             if not head_list[0][0] in fastq_dict:
                 fastq_dict[head_list[0][0]] = {}
                 fastq_dict[head_list[0][0]]['R1'] = fastq
@@ -57,7 +56,7 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
                     print('%s: non-interleaved FASTQ R2' % os.path.basename(fastq))
                     fastq_dict[head_list[0][0]]['R2'] = fastq
                 else:
-                    print('please check if FASTQ header is in format Casava 1.8+')
+                    logging.warning('please check if FASTQ header is in format Casava 1.8+')
             else:
                 fastq_dict[head_list[0][0]] = {}
                 if head_list[0][1].startswith('1'):
@@ -67,7 +66,7 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
                     print('%s: non-interleaved FASTQ R2' % os.path.basename(fastq))
                     fastq_dict[head_list[0][0]]['R2'] = fastq
                 else:
-                    print('please check if FASTQ header is in format Casava 1.8+')
+                    logging.warning('please check if FASTQ header is in format Casava 1.8+')
 
     for key in fastq_dict:
         if not 'R2' in fastq_dict[key].keys() or not 'R1' in fastq_dict[key].keys():
