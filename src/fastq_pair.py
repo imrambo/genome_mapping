@@ -27,7 +27,7 @@ def find_fastq_pairs(fastq_list, nslice = 800, exclude = False):
             with gzip.open(fastq, 'r') as fq:
                 head_list = [l.decode('utf-8').split() for l in islice(fq, nslice) if l.decode('utf-8').startswith('@')]
         if not gzipped: ###CHANGE
-            with open(fastq, 'r' as fq):
+            with open(fastq, 'r')as fq:
                 head_list = [l.split() for l in islice(fq, nslice) if l.startswith('@')]
         int_test_list = [head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]
         if all(int_test_list):
