@@ -76,6 +76,8 @@ def find_fastq_pairs(fastq_list, nslice = 800, exclude = False):
                 #Remove entries from dictionary with errors
                 del fastq_dict[key]
                 logging.info('exlude == True, removed faulty FASTQ %s from dictionary' % solo)
+
+            else:
                 pass
 
     return fastq_dict
