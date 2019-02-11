@@ -11,6 +11,7 @@ import atexit
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
+EnsurePythonVersion(3, 5)
 #Add scripts directory to path
 sys.path.insert(0, os.path.abspath('./src'))
 #=============================================================================
