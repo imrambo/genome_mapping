@@ -14,6 +14,7 @@ Thirteen... that's a mighty unlucky number... for somebody!
 #------------------------------------------------------------------------------
 def find_fastq_pairs(fastq_list, nslice = 800, exclude = False):
     '''
+    Identify FASTQ reads as interleaved or non-interleaved.
     Match paired-end FASTQ reads using header information.
     '''
     if nslice < 4:
