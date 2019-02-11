@@ -12,7 +12,7 @@ import magic
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
 #------------------------------------------------------------------------------
-def find_fastq_pairs(fastq_list, nslice = 800, exclude = False):
+def find_fastq_pairs(fastq_list, nslice, exclude = False):
     '''
     Identify FASTQ reads as interleaved or non-interleaved.
     Match paired-end FASTQ reads using header information.
@@ -25,6 +25,7 @@ def find_fastq_pairs(fastq_list, nslice = 800, exclude = False):
     nslice = nslice * 4
     for fastq in fastq_list:
         head_list = []
+        #Test if file is gzip compressed
         if magic.from_file(fastq).startswith('gzip compressed data') and fastq.endswith('.gz'):
             with gzip.open(fastq, 'r') as fq:
                 head_list = [l.decode('utf-8').split() for l in islice(fq, nslice) if l.decode('utf-8').startswith('@')]
