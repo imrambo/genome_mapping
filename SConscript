@@ -27,16 +27,12 @@ for key in fastq_dict:
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
-    if 'R2' in fastq_dict and fastq_dict[key]['R2'] == 'interleaved':
+    if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
         env.BWA_Samtools_Intl(maptarg, [env['GENOME'], fastq_dict[key]['R1']])
 
-    elif 'R1' in fastq_dict and 'R2' in fastq_dict and fastq_dict[key]['R2'] != 'interleaved':
+    elif 'R1' in fastq_dict[key].keys() and 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] != 'interleaved':
         env.BWA_Samtools_R1R2(maptarg, [env['GENOME'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
 
-    elif 'R1' in fastq_dict and not 'R2' in fastq_dict:
-        warn('WARNING: Non-interleaved FASTQ: R1 present, R2 absent')
-    elif not 'R1' in fastq_dict and 'R2' in fastq_dict:
-        warn('WARNING: Non-interleaved FASTQ: R1 absent, R2 present')
     else:
         pass
 #------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ def remove_build_targets(tmpdir):
     """
     Remove intermediate build targets within a specified temporary directory.
     """
-    if os.path.exists(tmpdir) and os.path.isdir(tmpdir):
+    if os.listdir(tmpdir):
         print('removing intermediate build targets in %s' % os.path.abspath(tmpdir))
         for tmp in [os.path.join(tmpdir, os.path.basename(str(t))) for t in BUILD_TARGETS]:
             if os.path.isfile(tmp):
@@ -35,12 +35,12 @@ def remove_build_targets(tmpdir):
                 pass
 
         if not os.listdir(tmpdir):
-            print('removing empty directory: %s' % tmpdir)
+            print('removing empty directory: "%s"' % tmpdir)
             os.rmdir(tmpdir)
         else:
-            print('directory %s is not empty' % tmpdir)
+            print('directory "%s" is not empty' % tmpdir)
     else:
-        print('directory %s does not exist' % tmpdir)
+        print('directory "%s" does not exist' % tmpdir)
         pass
     return None
 #=============================================================================
@@ -53,8 +53,7 @@ AddOption('--outdir', dest = 'outdir', type = 'string', nargs = 1,
 action = 'store', help = 'path to output directory')
 AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
           action = 'store',
-          help = '''identifier for sample fastq files to be globbed, e.g. AB*.fastq.gz .
-          Multiple identifiers can be specified in a single string when separated by commas, e.g. AB,MG,Megs''')
+          help = 'identifier for sample fastq files to be globbed, e.g. AB*.fastq.gz. Multiple identifiers can be specified in a single string when separated by commas, e.g. AB,MG,Megs')
 AddOption('--netsam', dest = 'netsam', type = 'str', nargs = 1,
          action = 'store', help = 'SAM file from mapping a particular FASTQ file for use in network.pl. E.g. if you want to use mapping of FOO42_R1.fastq.gz and FOO42_R2.fastq.gz, specify --netsam=FOO42')
 AddOption('--bwa_thread', dest = 'bwa_thread', type = 'int', nargs = 1, action = 'store',
@@ -64,7 +63,7 @@ help = 'number of threads for samtools sort')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
 AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
-help = 'number of headers from fastq file for determining if interleaved. Must be even.')
+help = 'number of headers from fastq file for determining if interleaved.')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove)')
 #------------------------------------------------------------------------------
@@ -81,7 +80,7 @@ env = Environment(GENOME=GetOption('genome'),
 ###
 
 #OPTION DICTIONARIES
-#Options for bwa mem, samtools sort, jgi coverage
+#Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':GetOption('bwa_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem')}
 depthfile_opts_net = {'--noIntraDepthVariance':''}
@@ -103,7 +102,7 @@ bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
-#Builder for depthfile creation; additional options must be added to this dict
+#Builder for depthfile creation
 depthfile_net_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
 depthfile_net_builder = Builder(action = depthfile_net_action)
 
