@@ -71,7 +71,7 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
     for key in fastq_dict:
         if not 'R2' in fastq_dict[key].keys() or not 'R1' in fastq_dict[key].keys():
             solo = [fastq_dict[key][v] for v in fastq_dict[key].keys()][0]
-            warning_message = "No pair for reads %s found, please include read pair or check if the sequences are correctly interleaved" % solo
+            warning_message = "#=====\nNo pair for reads %s found, please include read pair or check if the sequences are correctly interleaved\n#=====\n" % solo
             logging.warning(warning_message)
             if exclude == True:
                 #Remove entries from dictionary with errors
