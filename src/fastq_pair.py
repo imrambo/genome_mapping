@@ -5,6 +5,7 @@ import gzip
 import re
 from itertools import islice
 import logging
+import magic
 
 '''
 2019 Ian Rambo
@@ -23,10 +24,10 @@ def find_fastq_pairs(fastq_list, nslice = 800, exclude = False):
     nslice = nslice * 4
     for fastq in fastq_list:
         head_list = []
-        if gzipped: ###CHANGE
+        if magic.from_file(fastq).startswith('gzip compressed data') and fastq.endswith('.gz'):
             with gzip.open(fastq, 'r') as fq:
                 head_list = [l.decode('utf-8').split() for l in islice(fq, nslice) if l.decode('utf-8').startswith('@')]
-        if not gzipped: ###CHANGE
+        else:
             with open(fastq, 'r')as fq:
                 head_list = [l.split() for l in islice(fq, nslice) if l.startswith('@')]
         int_test_list = [head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]
