@@ -65,7 +65,7 @@ help = 'memory per thread for samtools sort. Specify an integer with K, M, or G 
 AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved.')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
-action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove)')
+action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(GENOME=GetOption('genome'),
