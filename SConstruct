@@ -95,13 +95,11 @@ samtools_sort_optstring = optstring_join(samtools_sort_opts)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are interleaved
-#bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - tmp > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are separate R1 and R2
-#bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s - -o ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - tmp > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
