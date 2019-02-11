@@ -48,7 +48,6 @@ Default(env.Install(env['OUTDIR'], depthfile_bin_target))
 env.Depthfile_Net(depthfile_net_target, depthfile_sources)
 env.Depthfile_Bin(depthfile_bin_target, depthfile_sources)
 #------------------------------------------------------------------------------
-print(mapping_targets)
 network_source = [m for m in mapping_targets if env['NETSAM'] in os.path.basename(m) and m.endswith('.sam')][0]
 network_target = env['NETSAM'] + '_network.txt'
 
