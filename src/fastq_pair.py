@@ -36,7 +36,8 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
         if all(int_test_list):
             interleaved = True
             print('%s: interleaved FASTQ' % os.path.basename(fastq))
-        #if all([head_list[n-1][0] != head_list[n][0] for n in range(1, len(head_list), 2)]):
+        #elif all([head_list[n-1][0] != head_list[n][0] for n in range(1, len(head_list), 2)]):
+            #interleaved = False
         else:
             interleaved = False
 
