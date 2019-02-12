@@ -10,6 +10,11 @@ import atexit
 '''
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
+
+Map reads to a genome with bwa mem and get SAM and BAM output.
+SAM and BAM will not include unmapped reads.
+Two depth files are built with and without intra depth variance.
+A network file is built for use with MMGenome1.
 '''
 EnsurePythonVersion(3, 5)
 #Add scripts directory to path
