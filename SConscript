@@ -53,7 +53,6 @@ network_source = [m for m in mapping_targets if env['NETSAM'] in os.path.basenam
 
 network_prefix = re.findall(r'^(.*?)\..*?\.reduced\.sam', os.path.basename(network_source))[0] + '_%s' % genome_id
 network_target = network_prefix + '_network.txt'
-#network_target = os.path.splitext(os.path.basename(network_source))[0] + '_network.txt'
 
 Default(env.Install(env['OUTDIR'], network_target))
 env.Network(network_target, network_source)
