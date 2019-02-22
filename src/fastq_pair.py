@@ -93,11 +93,14 @@ def source_list_generator(id_string, source_dir, extension):
         id_list = id_string.split(',')
         for i in id_list:
             idGlob = os.path.join(os.path.abspath(source_dir), '%s*%s' % (i, extension))
-            #source_list.extend(list(glob.iglob(idGlob, recursive = False)))
-            source_list.extend(list(glob.glob(idGlob, recursive = False)))
+            if idGlob:
+                source_list.extend(list(glob.glob(idGlob, recursive = False)))
+            else:
+                logging.warning('file(s) for identifier %s not found' % i)
     else:
         idGlob = os.path.join(os.path.abspath(source_dir), '%s*%s' % (id_string, extension))
-        #source_list.extend(list(glob.iglob(idGlob, recursive = False)))
-        source_list.extend(list(glob.glob(idGlob, recursive = False)))
-
+        if idGlob:
+            source_list.extend(list(glob.glob(idGlob, recursive = False)))
+        else:
+            logging.warning('file(s) for identifier %s not found' % i)
     return source_list
