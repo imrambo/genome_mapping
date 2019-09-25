@@ -11,7 +11,7 @@ import atexit
 2019 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 
-Map reads to a genome with bwa mem and get SAM and BAM output.
+Map reads to a assembly with bwa mem and get SAM and BAM output.
 SAM and BAM will not include unmapped reads.
 Two depth files are built with and without intra depth variance.
 A network file is built for use with MMGenome1.
@@ -53,8 +53,8 @@ def remove_build_targets(tmpdir):
 #Command line options and Environment
 AddOption('--fastq_dir', dest='fastq_dir', type='string', nargs=1,
 action='store', help='directory containing fastq files')
-AddOption('--genome', dest = 'genome', type = 'string', nargs = 1,
-action = 'store', help='path to genome to map reads to')
+AddOption('--assembly', dest = 'assembly', type = 'string', nargs = 1,
+action = 'store', help='path to assembly to map reads to')
 AddOption('--outdir', dest = 'outdir', type = 'string', nargs = 1,
 action = 'store', help = 'path to output directory')
 AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
@@ -74,7 +74,7 @@ AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
 #------------------------------------------------------------------------------
 #Initialize environment
-env = Environment(GENOME=GetOption('genome'),
+env = Environment(ASSEMBLY=GetOption('assembly'),
                           FQDIR=GetOption('fastq_dir'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
@@ -128,8 +128,8 @@ builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 env.Append(BUILDERS = builders)
 #=============================================================================
 #SConscript
-if env['GENOME']:
-    build_tmp = os.path.splitext(os.path.basename(env['GENOME']))[0] + '_build'
+if env['ASSEMBLY']:
+    build_tmp = os.path.splitext(os.path.basename(env['ASSEMBLY']))[0] + '_build'
     SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
 #------------------------------------------------------------------------------
 #If --rmbuild=1, remove the build targets in the temporary directory
