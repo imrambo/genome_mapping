@@ -8,17 +8,19 @@ import sys
 import atexit
 
 '''
-2019 Ian Rambo
-Thirteen... that's a mighty unlucky number... for somebody!
-
-Map reads to a assembly with bwa mem and get SAM and BAM output.
+Motivation: Map reads to a assembly with bwa mem and get SAM and BAM output.
 SAM and BAM will not include unmapped reads.
 Two depth files are built with and without intra depth variance.
 A network file is built for use with MMGenome1.
+
+Author: Ian Rambo
+Contact: ian.rambo@utexas.edu
+Thirteen... that's a mighty unlucky number... for somebody!
 '''
 EnsurePythonVersion(3, 5)
 #Add scripts directory to path
-sys.path.insert(0, os.path.abspath('./src'))
+#sys.path.insert(0, os.path.abspath('./src'))
+sys.path.append(os.path.abspath('./src'))
 #=============================================================================
 def optstring_join(optdict):
     """
@@ -62,16 +64,18 @@ AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
           help = 'identifier for sample fastq files to be globbed, e.g. AB*.fastq.gz. Multiple identifiers can be specified in a single string when separated by commas, e.g. AB,MG,Megs')
 AddOption('--netsam', dest = 'netsam', type = 'str', nargs = 1,
          action = 'store', help = 'SAM file from mapping a particular FASTQ file for use in network.pl. E.g. if you want to use mapping of FOO42_R1.fastq.gz and FOO42_R2.fastq.gz, specify --netsam=FOO42')
-AddOption('--bwa_thread', dest = 'bwa_thread', type = 'int', nargs = 1, action = 'store',
-help = 'number of threads for bwa mem')
+AddOption('--align_thread', dest = 'align_thread', type = 'int', nargs = 1, action = 'store',
+help = 'number of threads for alignment algorithm')
 AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, action = 'store',
 help = 'number of threads for samtools sort')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
 AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved.')
-AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
-action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
+# AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
+# action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
+AddOption('--rm_local_build', action='store_true', help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory.')
+AddOption('--aligner', dest = 'aligner', type = 'str', nargs = 1, default = 'bwa', action = 'store')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(ASSEMBLY=GetOption('assembly'),
@@ -87,7 +91,7 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
 
 #OPTION DICTIONARIES
 #Options for bwa mem, samtools sort, depthfile
-bwa_mem_opts = {'-t':GetOption('bwa_thread')}
+bwa_mem_opts = {'-t':GetOption('align_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem')}
 depthfile_opts_net = {'--noIntraDepthVariance':''}
 #------------------------------------------------------------------------------
