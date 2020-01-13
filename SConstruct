@@ -90,7 +90,7 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
 #OPTION DICTIONARIES
 #Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':GetOption('align_thread')}
-samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem')}
+samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
 depthfile_opts_net = {'--noIntraDepthVariance':''}
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
