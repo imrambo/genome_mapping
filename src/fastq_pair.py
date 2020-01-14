@@ -40,7 +40,7 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
             #interleaved = False
         else:
             nonint_index = [i for i, x in enumerate(int_test_list) if x]
-            print(nonint_idex)
+            print(nonint_index)
             interleaved = False
 
         if interleaved:
