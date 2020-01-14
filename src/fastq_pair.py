@@ -39,6 +39,8 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
         #elif all([head_list[n-1][0] != head_list[n][0] for n in range(1, len(head_list), 2)]):
             #interleaved = False
         else:
+            nonint_index = [i for i, x in enumerate(int_test_list) if x]
+            print(nonint_idex)
             interleaved = False
 
         if interleaved:
