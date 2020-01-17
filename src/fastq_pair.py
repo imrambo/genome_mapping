@@ -42,7 +42,7 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
                 interleave_pair = False
             int_test_list.append(interleave_pair)
             if interleave_pair == False:
-                ep = (head_list[n-1], head_list[n])
+                ep = (head_list[n-1], head_list[n], n-1, n)
                 error_pairs.append(ep)
 
         if all(int_test_list):
