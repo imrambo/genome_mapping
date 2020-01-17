@@ -23,7 +23,8 @@ mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nslice = env['NSLICE'])
 
 for key in fastq_dict:
-    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sam', '.reduced.sorted.bam']]
+    #maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sam', '.reduced.sorted.bam']]
+    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + '.reduced.sorted.bam']
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
@@ -49,10 +50,10 @@ Default(env.Install(env['OUTDIR'], depthfile_bin_target))
 env.Depthfile_Net(depthfile_net_target, depthfile_sources)
 env.Depthfile_Bin(depthfile_bin_target, depthfile_sources)
 #------------------------------------------------------------------------------
-network_source = [m for m in mapping_targets if env['NETSAM'] in os.path.basename(m) and m.endswith('.sam')][0]
+#network_source = [m for m in mapping_targets if env['NETSAM'] in os.path.basename(m) and m.endswith('.sam')][0]
 
-network_prefix = re.findall(r'^(.*?)\..*?\.reduced\.sam', os.path.basename(network_source))[0] + '_%s' % assembly_id
-network_target = network_prefix + '_network.txt'
+#network_prefix = re.findall(r'^(.*?)\..*?\.reduced\.sam', os.path.basename(network_source))[0] + '_%s' % assembly_id
+#network_target = network_prefix + '_network.txt'
 
-Default(env.Install(env['OUTDIR'], network_target))
-env.Network(network_target, network_source)
+#Default(env.Install(env['OUTDIR'], network_target))
+#env.Network(network_target, network_source)

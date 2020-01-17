@@ -32,7 +32,19 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
         else:
             with open(fastq, 'r')as fq:
                 head_list = [l.split() for l in islice(fq, nslice) if l.startswith('@')]
-        int_test_list = [head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]
+        #int_test_list = [head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]
+        int_test_list = []
+        error_pairs = []
+        for n in range(1, len(head_list), 2):
+            if head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2'):
+                interleave_pair = True
+            else:
+                interleave_pair = False
+            int_test_list.append(interleave_pair)
+            if interleave_pair == False:
+                ep = (head_list[n-1], head_list[n])
+                error_pairs.append(ep)
+
         if all(int_test_list):
             interleaved = True
             print('%s: interleaved FASTQ' % os.path.basename(fastq))
@@ -40,6 +52,7 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
             #interleaved = False
         else:
             interleaved = False
+            print(error_pairs)
 
         if interleaved:
             if not head_list[0][0] in fastq_dict:

@@ -62,8 +62,8 @@ action = 'store', help = 'path to output directory')
 AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
           action = 'store',
           help = 'identifier for sample fastq files to be globbed, e.g. AB*.fastq.gz. Multiple identifiers can be specified in a single string when separated by commas, e.g. AB,MG,Megs')
-AddOption('--netsam', dest = 'netsam', type = 'str', nargs = 1,
-         action = 'store', help = 'SAM file from mapping a particular FASTQ file for use in network.pl. E.g. if you want to use mapping of FOO42_R1.fastq.gz and FOO42_R2.fastq.gz, specify --netsam=FOO42')
+# AddOption('--netsam', dest = 'netsam', type = 'str', nargs = 1,
+#          action = 'store', help = 'SAM file from mapping a particular FASTQ file for use in network.pl. E.g. if you want to use mapping of FOO42_R1.fastq.gz and FOO42_R2.fastq.gz, specify --netsam=FOO42')
 AddOption('--align_thread', dest = 'align_thread', type = 'int', nargs = 1, action = 'store',
 help = 'number of threads for alignment algorithm')
 AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, action = 'store',
@@ -82,7 +82,7 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
                           FQDIR=GetOption('fastq_dir'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
-                          NETSAM=GetOption('netsam'),
+                          #NETSAM=GetOption('netsam'),
                           NSLICE=GetOption('nslice'))
 #=============================================================================
 ###
@@ -104,12 +104,14 @@ samtools_sort_optstring = optstring_join(samtools_sort_opts)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are interleaved
-bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+#bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -huS -F4 - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are separate R1 and R2
-bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+#bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -huS -F4 - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation
@@ -120,14 +122,14 @@ depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGE
 depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #------------------------------------------------------------------------------
 #Builder for network file
-network_action = 'perl src/network.pl -i $SOURCE -o $TARGET'
-network_builder = Builder(action = network_action)
+#network_action = 'perl src/network.pl -i $SOURCE -o $TARGET'
+#network_builder = Builder(action = network_action)
 #------------------------------------------------------------------------------
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
 'Depthfile_Net':depthfile_net_builder,
 'Depthfile_Bin':depthfile_bin_builder,
-'Network':network_builder,
+#'Network':network_builder,
 'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)
 #=============================================================================
