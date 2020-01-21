@@ -43,6 +43,8 @@ assembly_id = os.path.splitext(os.path.basename(env['ASSEMBLY']))[0]
 depthfile_bin_target = assembly_id + '_cov'
 
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
+print('woo')
+print(mapping_targets)
 print(depthfile_sources)
 #Default(env.Install(env['OUTDIR'], depthfile_net_target))
 Default(env.Install(env['OUTDIR'], depthfile_bin_target))
