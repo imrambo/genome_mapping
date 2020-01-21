@@ -115,8 +115,8 @@ bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]}
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation
-depthfile_net_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
-depthfile_net_builder = Builder(action = depthfile_net_action)
+#depthfile_net_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
+#depthfile_net_builder = Builder(action = depthfile_net_action)
 
 depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES'
 depthfile_bin_builder = Builder(action = depthfile_bin_action)
@@ -127,7 +127,7 @@ depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #------------------------------------------------------------------------------
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
-'Depthfile_Net':depthfile_net_builder,
+#'Depthfile_Net':depthfile_net_builder,
 'Depthfile_Bin':depthfile_bin_builder,
 #'Network':network_builder,
 'BWA_index':bwa_index_builder}

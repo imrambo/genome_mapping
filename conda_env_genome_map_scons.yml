@@ -1,0 +1,40 @@
+name: genome_map_scons
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=0_gnu
+  - bwa=0.7.17=hed695b0_7
+  - bzip2=1.0.8=h516909a_2
+  - ca-certificates=2019.11.28=hecc5488_0
+  - certifi=2018.8.24=py35_1001
+  - curl=7.64.0=h646f8bb_0
+  - krb5=1.16.3=hc83ff2d_1000
+  - libcurl=7.64.0=h01ee5af_0
+  - libdeflate=1.2=h516909a_1
+  - libedit=3.1.20170329=0
+  - libffi=3.2.1=he1b5a44_1006
+  - libgcc-ng=9.2.0=h24d8f2e_2
+  - libgomp=9.2.0=h24d8f2e_2
+  - libmagic=5.36=h516909a_1
+  - libssh2=1.8.0=h1ad7b7a_1003
+  - libstdcxx-ng=9.2.0=hdf63c60_2
+  - ncurses=5.9=10
+  - openssl=1.0.2u=h516909a_0
+  - perl=5.26.2=h516909a_1006
+  - pip=18.0=py35_1001
+  - python=3.5.5=1
+  - python-magic=0.4.15=py35_0
+  - readline=7.0=0
+  - samtools=1.8=h46bd0b3_5
+  - scons=3.0.1=py35_1001
+  - setuptools=40.4.3=py35_0
+  - sqlite=3.20.1=2
+  - tk=8.6.10=hed695b0_0
+  - wheel=0.32.0=py35_1000
+  - xz=5.2.4=h14c3975_1001
+  - zlib=1.2.11=h516909a_1006
+prefix: /home/rambo/miniconda3/envs/genome_map_scons
+

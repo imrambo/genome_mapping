@@ -1,0 +1,31 @@
+Read mapping builds with SCons
+
+Map FASTQ reads against an assembly (e.g. genome) in FASTA format. 
+This script will pair up groups of FASTQ files and map them to an assembly. 
+
+###############
+Getting Started
+###############
+Prerequisites: conda, python=3.5, bwa, samtools=1.8, biopython, python-magic 
+
+I recommend using a conda environment (either with Miniconda3 or Anaconda) to run this script. You can create the 
+conda environment using the conda_env_genome_map_scons.yml provided in the repository:
+
+conda env create -f conda_env_genome_map_scons.yml
+
+
+
+###############
+Running the script
+###############
+To see the available options for scons, as well as the build, run this in the 
+same directory as the SConstruct file
+
+scons -h
+
+Be sure to use all the included options:
+scons --fastq_dir=<path to directory containing fastq files> --assembly=<path to assembly you are mapping to> --outdir=<output directory> --sampleids=<sample id patterns of FASTQ files> --align_thread=10 --samsort_thread=2 --samsort_mem=10G --nslice=1200 --tmpdir=<directory for temporary files>
+
+By default, scons will create a build in the same directory as the SConstruct. 
+Include the --rm_local_build option to delete this build. 
+
