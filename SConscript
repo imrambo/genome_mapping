@@ -21,7 +21,7 @@ fastq_list = source_list_generator(env['SIDS'], env['FQDIR'], '.fastq.gz')
 #------------------------------------------------------------------------------
 mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nslice = env['NSLICE'])
-print(fastq_dict)
+
 for key in fastq_dict:
     #maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sam', '.reduced.sorted.bam']]
     maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + '.reduced.sorted.bam']

@@ -31,7 +31,8 @@ def find_fastq_pairs(fastq_list, nslice, exclude = False):
                 head_list = [l.decode('utf-8').split() for l in islice(fq, nslice) if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l.decode('utf-8'))]
         else:
             with open(fastq, 'r')as fq:
-                head_list = [l.split() for l in islice(fq, nslice) if l.startswith('@')]
+                #head_list = [l.split() for l in islice(fq, nslice) if l.startswith('@')]
+                head_list = [l.split() for l in islice(fq, nslice) if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l)]
         #int_test_list = [head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2') for n in range(1, len(head_list), 2)]
         int_test_list = []
         error_pairs = []
