@@ -21,7 +21,7 @@ fastq_list = source_list_generator(env['SIDS'], env['FQDIR'], '.fastq.gz')
 #------------------------------------------------------------------------------
 mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nslice = env['NSLICE'])
-
+print(fastq_dict)
 for key in fastq_dict:
     #maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sam', '.reduced.sorted.bam']]
     maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + '.reduced.sorted.bam']
@@ -43,9 +43,7 @@ assembly_id = os.path.splitext(os.path.basename(env['ASSEMBLY']))[0]
 depthfile_bin_target = assembly_id + '_cov'
 
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
-print('woo')
-print(mapping_targets)
-print(depthfile_sources)
+
 #Default(env.Install(env['OUTDIR'], depthfile_net_target))
 Default(env.Install(env['OUTDIR'], depthfile_bin_target))
 
