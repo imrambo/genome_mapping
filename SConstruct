@@ -122,7 +122,7 @@ if GetOption('nointdepth'):
     depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES'
     depthfile_bin_builder = Builder(action = depthfile_bin_action)
 else:
-    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' optstring_join(depthfile_opts_net)
+    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
     depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #depthfile_net_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
 #depthfile_net_builder = Builder(action = depthfile_net_action)
