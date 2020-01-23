@@ -76,6 +76,8 @@ AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store'
 help = 'output directory for samtools sort temporary files')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
+AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1,
+action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance.')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(ASSEMBLY=GetOption('assembly'),
@@ -83,7 +85,8 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
                           #NETSAM=GetOption('netsam'),
-                          NSLICE=GetOption('nslice'))
+                          NSLICE=GetOption('nslice'),
+                          INTDEPTH=GetOption('nointdepth'))
 #=============================================================================
 ###
 ### Builders
@@ -115,11 +118,16 @@ bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]}
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation
+if GetOption('nointdepth'):
+    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES'
+    depthfile_bin_builder = Builder(action = depthfile_bin_action)
+else:
+    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' optstring_join(depthfile_opts_net)
+    depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #depthfile_net_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
 #depthfile_net_builder = Builder(action = depthfile_net_action)
 
-depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES'
-depthfile_bin_builder = Builder(action = depthfile_bin_action)
+
 #------------------------------------------------------------------------------
 #Builder for network file
 #network_action = 'perl src/network.pl -i $SOURCE -o $TARGET'
