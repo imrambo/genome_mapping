@@ -16,6 +16,8 @@ A network file is built for use with MMGenome1.
 Author: Ian Rambo
 Contact: ian.rambo@utexas.edu
 Thirteen... that's a mighty unlucky number... for somebody!
+
+v.1.0.0.1
 '''
 EnsurePythonVersion(3, 5)
 #Add scripts directory to path
