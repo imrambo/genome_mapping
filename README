@@ -1,5 +1,5 @@
 Author: Ian Rambo
-ian.rambo@utexas.edu
+Contact: ian.rambo@utexas.edu
 v.1.0.0.2
 
 Reproducible read mapping builds with SCons.
@@ -8,7 +8,7 @@ This wrapper maps FASTQ reads against an assembly (e.g. genome) in FASTA format 
 Additional functionality identifies single, R1-R2 paired, or interleaved FASTQ files and maps them to an assembly accordingly.
 
 This script is intended to ensure you:
-1) can reproduce large mapping runs
+1) can reproduce large-scale mapping runs
 2) do not repeat completed steps that might take a long time
 3) do not produce huge intermediate files (e.g. unfiltered SAM)
 
@@ -56,5 +56,11 @@ scons --fastq_dir=<path to directory containing fastq files> --assembly=<path to
 
 Note that for SCons, the options must not have spaces between the values and names.
 
+For sanity reasons and ensuring the script runs correctly during a production run,
+use the SCons --dry-run option.
+
 By default, SCons will create a build in the same directory as the SConstruct.
-Include the --rm_local_build option to delete this build.
+Include the --rm_local_build=1 option to delete this build.
+This option is coded outside of the SCons framework, so doing a --dry-run
+with --rm_local_build=1 will raise an error since the directory is not built.
+This can be ignored.
