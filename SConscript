@@ -43,6 +43,7 @@ else:
 print(fastq_dict)
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
+    maptarg = []
     if os.path.isfile(fastq_dict[key]['R1']):
         if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
             maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + bam_extension]
@@ -62,8 +63,8 @@ for key in fastq_dict:
                 env.BWA_Samtools_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
         else:
             pass
-        mapping_targets.extend(maptarg)
 
+        mapping_targets.extend(maptarg)
     elif fastq_dict[key]['R1'] == 'single' or fastq_dict[key]['R2'] == 'single':
         single_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
         maptarg = [assembly_id + '____' + get_basename(single_path) + bam_extension]
