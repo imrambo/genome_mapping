@@ -1,43 +1,35 @@
 Author: Ian Rambo
 ian.rambo@utexas.edu
-v.1.0.0.1
+v.1.0.0.2
 
 Reproducible read mapping builds with SCons.
 
 This wrapper maps FASTQ reads against an assembly (e.g. genome) in FASTA format using BWA-MEM.
-This script will pair up groups of FASTQ files and map them to an assembly.
+Additional functionality identifies single, R1-R2 paired, or interleaved FASTQ files and maps them to an assembly accordingly.
 
 This script is intended to ensure you:
 1) can reproduce large mapping runs
 2) do not repeat completed steps that might take a long time
 3) do not produce huge intermediate files (e.g. unfiltered SAM)
 
+Currently optimized for Linux 64-bit systems.
+
 ###############
 Getting Started
 ###############
-Cloning from the GitHub repository
+Cloning from the GitHub repository:
 
 
-git clone
+git clone https://github.com/imrambo/genome_mapping.git
 
 
-Prerequisites: conda, python=3.5, bwa, samtools=1.8, biopython, python-magic
-bwa, samtools=1.8
+Prerequisites: conda, python=3.8.1, samtools=1.10, biopython, python-magic=0.4.15
+bwa=0.7.17, scons=3.1.2
 
 I recommend using a conda environment (either with Miniconda3 or Anaconda) to run this script. You can create the
-conda environment using the conda_config.sh script:
+conda environment using the "environment_linux64.yml" file:
 
-bash conda_config.sh <YOUR ENV NAME>
-
-conda activate <YOUR ENV NAME>
-
-Or
-
-envName=<YOUR ENV NAME>
-conda create -n $envName python=3.5 && \
-conda install -c conda-forge -n $envName python-magic && \
-conda install -c conda-forge -n $envName scons && \
-conda install -c bioconda -n $envName samtools=1.8 bwa
+conda env create -f environment_linux64.yml
 
 ###############
 Running the script
