@@ -6,11 +6,16 @@ import re
 from itertools import islice
 from warnings import warn
 from fastq_pair import *
+import logging
 
 '''
 2020 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
+logging.basicConfig(format='%(asctime)s - %(message)s',
+    datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG,
+    filename=env['LOGFILE'])
+
 bwa_index_targets = [env['ASSEMBLY'] + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
 Default(bwa_index_targets)
 #Index the assembly
@@ -24,28 +29,37 @@ fastq_dict = find_fastq_pairs(fastq_list, nheader = env['NHEADER'])
 
 extension = '.reduced.sorted.bam'
 if env['MARKDUP']:
+    markdup_msg = 'Mark duplicates in this build'
+    logging.info(markdup_msg)
     extension = '.reduced.sorted.markdup.bam'
+else:
+    pass
+#Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
     maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + extension]
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
-    if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
+    if os.path.isfile(fastq_dict[key]['R1']) and 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
         if env['MARKDUP']:
-            print('Mark duplicates')
+            logging.info('fixmates and mark duplicates in interleaved file %s' % fastq_dict[key]['R1'])
             env.BWA_Samtools_Markdup_Intl(maptarg, env['ASSEMBLY'], fastq_dict[key]['R1'])
         else:
             env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
 
-    elif 'R1' in fastq_dict[key].keys() and 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] != 'interleaved':
+    elif os.path.isfile(fastq_dict[key]['R1']) and os.path.isfile(fastq_dict[key]['R2']) and fastq_dict[key]['R2'] != 'interleaved':
         if env['MARKDUP']:
-            print('Mark duplicates')
+            logging.info('fixmates and mark duplicates for R1-R2 %s %s' % (fastq_dict[key]['R1'], fastq_dict[key]['R2']))
             env.BWA_Samtools_Markdup_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
         else:
             env.BWA_Samtools_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
 
+    elif fastq_dict[key]['R1'] == 'single' or fastq_dict[key]['R2'] == 'single':
+        single_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
+        env.BWA_Samtools_Single(maptarg, [env['ASSEMBLY'], single_path])
+
     else:
-        pass
+        logging.error('WARNING: no interleaved, R1-R2 pair, or single-end FASTQ found. Please inspect your data.')
 #------------------------------------------------------------------------------
 #get the basename of the reference assembly and use as its ID
 assembly_id = get_basename(env['ASSEMBLY'])

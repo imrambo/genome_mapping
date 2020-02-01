@@ -7,9 +7,17 @@ Reproducible read mapping builds with SCons.
 This wrapper maps FASTQ reads against an assembly (e.g. genome) in FASTA format using BWA-MEM.
 This script will pair up groups of FASTQ files and map them to an assembly.
 
+This script is intended to ensure you:
+1) can reproduce large mapping runs
+2) do not repeat completed steps that might take a long time
+3) do not produce huge intermediate files (e.g. unfiltered SAM)
+
 ###############
 Getting Started
 ###############
+Cloning from the GitHub repository
+
+
 git clone
 
 

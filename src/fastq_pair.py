@@ -74,7 +74,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
         nrows = nheader * 4
     for fastq in fastq_list:
         head_list = []
-        #Test if file is gzip compressed
+        #Inspect the FASTQ headers to see if they match the pattern for Casava 1.8+
         if is_gzipped(fastq):
             with gzip.open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
@@ -93,7 +93,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                     logging.error('fastq_pair: nheader value must be an integer, or string "ALL".')
         int_test_list = []
 
-        #Loop through the read headers to see if they are correctly paired
+        #Loop through the FASTQ read headers to see if they are correctly paired
         for n in range(1, len(head_list), 2):
             if head_list[n-1][0] == head_list[n][0] and head_list[n-1][1].startswith('1') and head_list[n][1].startswith('2'):
                 interleave_pair = True
@@ -118,14 +118,15 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                 fastq_dict[head_list[0][0]]['R1'] = fastq
                 fastq_dict[head_list[0][0]]['R2'] = 'interleaved'
             else:
-                print('WARNING: identical identifier %s in %s and %s' % (head_list[0][0], fastq_dict[head_list[0][0]]['R1'], fastq))
+                ident_exist = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
+                logging.warning('WARNING: same identifier present in both %s and interleaved FASTQ %s' % (ident_exist, fastq))
         else:
             #Test to see if the reads are single-end
             single = False
             if all([head_list[n-1][0] == head_list[n][0] and head_list[n-1][1][0] == head_list[n][1][0] for n in range(1, len(head_list), 2)]):
                 single = True
 
-            if single and not head_list[0][0] in fastq_dict:
+            if single:
                 if head_list[0][1].startswith('1'):
                     if isinstance(nheader, int):
                         logging.info('%s: single-end FASTQ R1 based on %d headers' % (os.path.basename(fastq), nheader))
@@ -143,6 +144,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
 
                 else:
                     logging.warning('please check if FASTQ header is in format Casava 1.8+')
+
             else:
                 fastq_dict[head_list[0][0]] = {}
                 if head_list[0][1].startswith('1'):
@@ -169,12 +171,12 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
     for key in fastq_dict:
         if 'error' in fastq_dict[key].keys():
             solo = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
-            solo_message = "\n#=====\nNo pair for non-interleaved reads %s found, file may contain errors.\nPlease include read pair and check if the sequences are correctly interleaved or single-end.\n#=====\n" % solo
+            solo_message = "\n#=====\nNo pair for non-interleaved FASTQ reads %s found, file may contain errors.\nPlease include read pair and/or check if the sequences are correctly interleaved or single-end.\n#=====\n" % solo
             logging.warning(solo_message)
             if exclude:
                 #Remove entries from dictionary with errors
                 del fastq_dict[key]
-                logging.info('exlude == True, removed non-paired FASTQ %s from dictionary' % solo)
+                logging.info('exclude == True, removed non-paired FASTQ %s from dictionary' % solo)
 
             else:
                 pass

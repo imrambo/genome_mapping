@@ -18,7 +18,7 @@ Thirteen... that's a mighty unlucky number... for somebody!
 
 v.1.0.0.2
 '''
-EnsurePythonVersion(3, 5)
+EnsurePythonVersion(3, 8, 1)
 #Add scripts directory to path
 sys.path.append(os.path.abspath('./src'))
 #=============================================================================
@@ -78,6 +78,8 @@ AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1
 action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance (yes = 1, no = 0). Default = 1')
 AddOption('--markdup', dest = 'markdup', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'choose to fix mates and mark duplicates for paired-end reads (yes = 1, no = 0). Default = 0')
+AddOption('--logfile', dest = 'logfile', type = 'str', nargs = 1,
+action = 'store', default = 'logging.log', help = 'logger file name. Default = logging.log')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(ASSEMBLY=GetOption('assembly'),
@@ -86,7 +88,8 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
                           SIDS=GetOption('sids'),
                           NHEADER=GetOption('nheader'),
                           INTDEPTH=GetOption('nointdepth'),
-                          MARKDUP=GetOption('markdup'))
+                          MARKDUP=GetOption('markdup'),
+                          LOGFILE=GetOption('logfile'))
 if env['NHEADER'] == 0:
     env['NHEADER'] = 'ALL'
 #=============================================================================
@@ -109,15 +112,16 @@ samtools_sort_optstring = optstring_join(samtools_sort_opts)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are interleaved
-#bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -huS -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are separate R1 and R2
-#bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -huS -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
+
+bwa_samtools_single_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} | samtools view -huS -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_single_builder = Builder(action = bwa_samtools_single_action)
 
 bwa_samtools_intl_markdup = """bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | \
     samtools view -hu -F4 - | \
@@ -147,6 +151,7 @@ builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
 'BWA_Samtools_Markdup_Intl':bwa_samtools_intl_markdup_builder,
 'BWA_Samtools_Markdup_R1R2':bwa_samtools_r1r2_markdup_builder,
+'BWA_Samtools_Single':bwa_samtools_single_builder,
 'Depthfile_Bin':depthfile_bin_builder,
 'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)
