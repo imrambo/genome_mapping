@@ -51,18 +51,6 @@ def remove_build_targets(tmpdir):
         print('Cannot delete directory "%s", does not exist' % tmpdir)
         pass
     return None
-#------------------------------------------------------------------------------
-def get_basename(file_path):
-    """
-    Get file basename, excluding multiple extensions.
-    """
-    basename = os.path.basename(file_path)
-    #Remove two extensions, e.g. foo.tar.gz becomes foo
-    if re.match(r'^.*?\.[a-z]+\.[a-z]+$', basename):
-        basename = re.findall(r'^(.*?)\.[a-z]+\.[a-z]+$', basename)[0]
-    else:
-        basename = os.path.splitext(basename)[0]
-    return basename
 #=============================================================================
 #Command line options and Environment
 AddOption('--fastq_dir', dest='fastq_dir', type='string', nargs=1,

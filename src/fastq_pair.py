@@ -248,3 +248,15 @@ def source_list_generator(id_string, source_dir, extension):
         else:
             logging.warning('file(s) for identifier %s not found' % i)
     return source_list
+#------------------------------------------------------------------------------
+def get_basename(file_path):
+    """
+    Get file basename, excluding multiple extensions.
+    """
+    basename = os.path.basename(file_path)
+    #Remove two extensions, e.g. foo.tar.gz becomes foo
+    if re.match(r'^.*?\.[a-z]+\.[a-z]+$', basename):
+        basename = re.findall(r'^(.*?)\.[a-z]+\.[a-z]+$', basename)[0]
+    else:
+        basename = os.path.splitext(basename)[0]
+    return basename
