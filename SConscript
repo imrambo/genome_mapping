@@ -40,7 +40,7 @@ else:
     pass
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
-    maptarg = [assembly_id + '_' + get_basename(fastq_dict[key]['R1']) + extension]
+    maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + extension]
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
