@@ -79,10 +79,13 @@ AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
 AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1,
 action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance (yes = 1, no = 0). Default = 1')
+AddOption('--read_percent_id', dest = 'read_percent_id', type = int, nargs = 1,
+action = 'store', default = 97, help = 'The minimum end-to-end percent identity of qualifying reads for depth file. Default = 97')
 AddOption('--markdup', dest = 'markdup', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'choose to fix mates and mark duplicates for paired-end reads (yes = 1, no = 0). Default = 0')
 AddOption('--logfile', dest = 'logfile', type = 'str', nargs = 1,
 action = 'store', default = 'logging.log', help = 'logger file name. Default = logging.log')
+
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(ASSEMBLY=GetOption('assembly'),
@@ -91,6 +94,7 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
                           SIDS=GetOption('sids'),
                           NHEADER=GetOption('nheader'),
                           INTDEPTH=GetOption('nointdepth'),
+                          PCTID=GetOption('read_percent_id'),
                           MARKDUP=GetOption('markdup'),
                           LOGFILE=GetOption('logfile'))
 if env['NHEADER'] == 0:
@@ -104,7 +108,7 @@ if env['NHEADER'] == 0:
 #Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':GetOption('align_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
-depthfile_opts_bin = {'--noIntraDepthVariance':''}
+depthfile_opts_bin = {'--noIntraDepthVariance':'', '--percentIdentity':env['PCTID']}
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
 bwa_index_builder = Builder(action = 'bwa index $SOURCE')
