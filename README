@@ -14,17 +14,23 @@ git clone
 
 
 Prerequisites: conda, python=3.5, bwa, samtools=1.8, biopython, python-magic
+bwa, samtools=1.8
 
 I recommend using a conda environment (either with Miniconda3 or Anaconda) to run this script. You can create the
-conda environment using the conda_env_genome_map_scons.yml provided in the repository:
-
-conda env create -f conda_env_genome_map_scons.yml
-
-or the conda_config.sh script:
+conda environment using the conda_config.sh script:
 
 bash conda_config.sh <YOUR ENV NAME>
 
 conda activate <YOUR ENV NAME>
+
+Or
+
+envName=<YOUR ENV NAME>
+conda create -n $envName python=3.5 && \
+conda install -c conda-forge -n $envName python-magic && \
+conda install -c conda-forge -n $envName scons && \
+conda install -c bioconda -n $envName samtools=1.8 bwa
+
 ###############
 Running the script
 ###############
