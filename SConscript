@@ -21,6 +21,9 @@ bwa_index_targets = [env['ASSEMBLY'] + ext for ext in ['.bwt','.pac','.ann','.am
 Default(bwa_index_targets)
 #Index the assembly
 env.BWA_index(bwa_index_targets, env['ASSEMBLY'])
+
+#get the basename of the reference assembly and use as a build ID
+assembly_id = get_basename(env['ASSEMBLY'])
 #------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
 fastq_list = source_list_generator(env['SIDS'], env['FQDIR'])
@@ -37,7 +40,7 @@ else:
     pass
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
-    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + extension]
+    maptarg = [assembly_id + '_' + get_basename(fastq_dict[key]['R1']) + extension]
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
@@ -62,8 +65,6 @@ for key in fastq_dict:
     else:
         logging.error('WARNING: no interleaved, R1-R2 pair, or single-end FASTQ found. Please inspect your data.')
 #------------------------------------------------------------------------------
-#get the basename of the reference assembly and use as its ID
-assembly_id = get_basename(env['ASSEMBLY'])
 #Depth file
 depthfile_bin_target = assembly_id + '_cov'
 

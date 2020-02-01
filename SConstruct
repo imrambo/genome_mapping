@@ -22,6 +22,8 @@ EnsurePythonVersion(3, 8)
 EnsureSConsVersion(3, 1)
 #Add scripts directory to path
 sys.path.append(os.path.abspath('./src'))
+
+from fastq_pair import get_basename
 #=============================================================================
 def optstring_join(optdict):
     """
@@ -148,7 +150,7 @@ else:
     depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_bin)
     depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #------------------------------------------------------------------------------
-#Add the builders to the environment 
+#Add the builders to the environment
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
 'BWA_Samtools_Markdup_Intl':bwa_samtools_intl_markdup_builder,
@@ -160,7 +162,7 @@ env.Append(BUILDERS = builders)
 #=============================================================================
 #SConscript
 if env['ASSEMBLY']:
-    build_tmp = os.path.splitext(os.path.basename(env['ASSEMBLY']))[0] + '_build'
+    build_tmp = get_basename(env['ASSEMBLY']) + '_build'
     SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
 #------------------------------------------------------------------------------
 #If --rmbuild=1, remove the build targets in the temporary directory
