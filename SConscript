@@ -17,7 +17,7 @@ Default(bwa_index_targets)
 env.BWA_index(bwa_index_targets, env['ASSEMBLY'])
 #------------------------------------------------------------------------------
 #Generate list of input FASTQ files using sample IDs
-fastq_list = source_list_generator(env['SIDS'], env['FQDIR'], 'fastq')
+fastq_list = source_list_generator(env['SIDS'], env['FQDIR'])
 #------------------------------------------------------------------------------
 mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nheader = env['NHEADER'])
