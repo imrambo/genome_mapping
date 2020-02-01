@@ -17,6 +17,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG,
     filename=env['LOGFILE'])
 
+print('writing logfile to %s' % env['LOGFILE'])
 bwa_index_targets = [env['ASSEMBLY'] + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
 Default(bwa_index_targets)
 #Index the assembly

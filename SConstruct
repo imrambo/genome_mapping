@@ -6,6 +6,7 @@ from itertools import islice
 from warnings import warn
 import sys
 import atexit
+from datetime import datetime
 
 '''
 Motivation: Map reads to a assembly with bwa mem and get SAM and BAM output.
@@ -166,7 +167,7 @@ env.Append(BUILDERS = builders)
 #=============================================================================
 #SConscript
 if env['ASSEMBLY']:
-    build_tmp = get_basename(env['ASSEMBLY']) + '_build'
+    build_tmp = get_basename(env['ASSEMBLY']) + '_build' + str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
     SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
 #------------------------------------------------------------------------------
 #If --rmbuild=1, remove the build targets in the temporary directory
