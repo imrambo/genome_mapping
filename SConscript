@@ -12,6 +12,7 @@ import logging
 2020 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
+#Set up the logger for this build
 logging.basicConfig(format='%(asctime)s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG,
     filename=env['LOGFILE'])
