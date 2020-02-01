@@ -72,7 +72,7 @@ help = 'memory per thread for samtools sort. Specify an integer with K, M, or G 
 AddOption('--nheader', dest = 'nheader', type = 'int', default = 0, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. If 0, use all headers. Default = 0')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
-help = 'output directory for samtools sort temporary files')
+default = '/tmp', help = 'output directory for samtools sort temporary files. Default = /tmp')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
 AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1,
