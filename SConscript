@@ -43,7 +43,7 @@ else:
 print(fastq_dict)
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
-    if os.path.isfile(fastq_dict[key]['R1']:
+    if os.path.isfile(fastq_dict[key]['R1']):
         if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
             maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + bam_extension]
             if env['MARKDUP']:
