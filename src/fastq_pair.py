@@ -118,7 +118,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                 fastq_dict[head_list[0][0]]['R1'] = fastq
                 fastq_dict[head_list[0][0]]['R2'] = 'interleaved'
             else:
-                ident_exist = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
+                ident_exist = [fastq_dict[key][v] for key in fastq_dict.keys() for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
                 logging.warning('WARNING: same identifier present in both %s and interleaved FASTQ %s' % (ident_exist, fastq))
         else:
             #Test to see if the reads are single-end
