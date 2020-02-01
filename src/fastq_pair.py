@@ -12,7 +12,7 @@ import magic
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
 #------------------------------------------------------------------------------
-def source_list_generator(id_string, source_dir):
+def source_list_generator(id_string, source_dir, pattern=('*.fq','*.fastq','*.fq.gz', '*fastq.gz')):
     """
     Generate list of source files using sample IDs
     """
@@ -20,25 +20,28 @@ def source_list_generator(id_string, source_dir):
     if ',' in id_string:
         id_list = id_string.split(',')
         for i in id_list:
-            idGlob = os.path.join(os.path.abspath(source_dir), '%s*' % i)
+            for fpat in pattern:
+                idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (i, fpat))
+                if idGlob:
+                    source_list.extend(list(glob.glob(idGlob, recursive = False)))
+                else:
+                    logging.warning('file(s) for identifier %s not found' % i)
+    else:
+        for fpat in pattern:
+            idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (id_string, fpat))
             if idGlob:
                 source_list.extend(list(glob.glob(idGlob, recursive = False)))
             else:
                 logging.warning('file(s) for identifier %s not found' % i)
-    else:
-        idGlob = os.path.join(os.path.abspath(source_dir), '%s*' % id_string)
-        if idGlob:
-            source_list.extend(list(glob.glob(idGlob, recursive = False)))
-        else:
-            logging.warning('file(s) for identifier %s not found' % i)
+
     return source_list
 #------------------------------------------------------------------------------
 def get_basename(file_path):
     """
-    Get file basename, excluding multiple extensions.
+    Get file basename, excluding multiple patterns.
     """
     basename = os.path.basename(file_path)
-    #Remove two extensions, e.g. foo.tar.gz becomes foo
+    #Remove two patterns, e.g. foo.tar.gz becomes foo
     if re.match(r'^.*?\.[a-z]+\.[a-z]+$', basename):
         basename = re.findall(r'^(.*?)\.[a-z]+\.[a-z]+$', basename)[0]
     else:
