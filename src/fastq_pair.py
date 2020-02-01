@@ -63,9 +63,9 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
     comparing header order (nheader is the number of headers to use).
     Default is to read all headers.
     Match paired-end FASTQ reads using header information.
-    Requires Casava 1.8+
+    Requires Casava 1.8+ format.
     '''
-    if isinstance(nheader, int) and nheader < 4:
+    if isinstance(nheader, int) and nheader > 0 and nheader < 4:
         logging.warning('slice more than four headers for comparison')
     fastq_dict = {}
     interleaved = False
@@ -127,7 +127,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                 fastq_dict[head_list[0][0]]['R1'] = fastq
                 fastq_dict[head_list[0][0]]['R2'] = 'interleaved'
             else:
-                pass
+                print('WARNING: identical identifier %s in %s and %s' % (head_list[0][0], fastq_dict[head_list[0][0]]['R1'], fastq))
         else:
             #Test to see if the reads are single-end
             single = False
