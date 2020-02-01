@@ -169,6 +169,8 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                         break
 
             else:
+                if not fastq_id_tag in fastq_dict.keys():
+                    fastq_dict[fastq_id_tag] = {}
                 if head_list[0][1].startswith('1'):
                     if isinstance(nheader, int):
                         logging.warning('%s: non-interleaved FASTQ R1 : potential interleave error based on %d headers' % (os.path.basename(fastq), nheader))
