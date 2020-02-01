@@ -73,11 +73,9 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
     if isinstance(nheader, int):
         nrows = nheader * 4
     for fastq in fastq_list:
-        print('testing %s...' % fastq)
         head_list = []
         #Test if file is gzip compressed
         if is_gzipped(fastq):
-            print('file %s is gzip compressed' % fastq)
             with gzip.open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
                     head_list = [l.decode('utf-8').strip().split() for l in islice(fq, nrows) if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l.decode('utf-8').strip())]
@@ -85,7 +83,6 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                     head_list = [l.decode('utf-8').strip().split() for l in fq if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l.decode('utf-8').strip())]
                 else:
                     logging.error('fastq_pair: nheader value must be an integer, or string "ALL".')
-                print(head_list)
         else:
             with open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
@@ -95,7 +92,6 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                 else:
                     logging.error('fastq_pair: nheader value must be an integer, or string "ALL".')
         int_test_list = []
-        #error_pairs = []
 
         #Loop through the read headers to see if they are correctly paired
         for n in range(1, len(head_list), 2):
@@ -104,9 +100,6 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
             else:
                 interleave_pair = False
             int_test_list.append(interleave_pair)
-            # if interleave_pair == False:
-            #     ep = (head_list[n-1], head_list[n], n-1, n)
-            #     error_pairs.append(ep)
 
         if all(int_test_list):
             interleaved = True
@@ -114,11 +107,9 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                 logging.info('%s: interleaved FASTQ based on %d headers' % (os.path.basename(fastq), nheader))
             elif isinstance(nheader, str) and nheader == 'ALL':
                 logging.info('%s: interleaved FASTQ based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
-        #elif all([head_list[n-1][0] != head_list[n][0] for n in range(1, len(head_list), 2)]):
-            #interleaved = False
+
         else:
             interleaved = False
-            #print(error_pairs)
 
         if interleaved:
             #If the interleaved FASTQ is not in the dicitonary, add it
