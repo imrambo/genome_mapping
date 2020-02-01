@@ -12,6 +12,49 @@ import magic
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
 #------------------------------------------------------------------------------
+def source_list_generator(id_string, source_dir, extension):
+    """
+    Generate list of source files using sample IDs
+    """
+    source_list = list()
+    if ',' in id_string:
+        id_list = id_string.split(',')
+        for i in id_list:
+            idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (i, extension))
+            if idGlob:
+                source_list.extend(list(glob.glob(idGlob, recursive = False)))
+            else:
+                logging.warning('file(s) for identifier %s not found' % i)
+    else:
+        idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (id_string, extension))
+        if idGlob:
+            source_list.extend(list(glob.glob(idGlob, recursive = False)))
+        else:
+            logging.warning('file(s) for identifier %s not found' % i)
+    return source_list
+#------------------------------------------------------------------------------
+def get_basename(file_path):
+    """
+    Get file basename, excluding multiple extensions.
+    """
+    basename = os.path.basename(file_path)
+    #Remove two extensions, e.g. foo.tar.gz becomes foo
+    if re.match(r'^.*?\.[a-z]+\.[a-z]+$', basename):
+        basename = re.findall(r'^(.*?)\.[a-z]+\.[a-z]+$', basename)[0]
+    else:
+        basename = os.path.splitext(basename)[0]
+    return basename
+#------------------------------------------------------------------------------
+def is_gzipped(file_path):
+    """
+    Test if a file is gzipped.
+    """
+    is_gzip = False
+    if magic.from_file(file_path).startswith('gzip compressed data'):
+        is_gzip = True
+        return is_gzip
+    else:
+        return is_gzip
 def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
     '''
     Identify Illumina FASTQ reads as interleaved or non-interleaved by
@@ -227,36 +270,3 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
 #                 pass
 #
 #     return fastq_dict
-#------------------------------------------------------------------------------
-def source_list_generator(id_string, source_dir, extension):
-    """
-    Generate list of source files using sample IDs
-    """
-    source_list = list()
-    if ',' in id_string:
-        id_list = id_string.split(',')
-        for i in id_list:
-            idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (i, extension))
-            if idGlob:
-                source_list.extend(list(glob.glob(idGlob, recursive = False)))
-            else:
-                logging.warning('file(s) for identifier %s not found' % i)
-    else:
-        idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (id_string, extension))
-        if idGlob:
-            source_list.extend(list(glob.glob(idGlob, recursive = False)))
-        else:
-            logging.warning('file(s) for identifier %s not found' % i)
-    return source_list
-#------------------------------------------------------------------------------
-def get_basename(file_path):
-    """
-    Get file basename, excluding multiple extensions.
-    """
-    basename = os.path.basename(file_path)
-    #Remove two extensions, e.g. foo.tar.gz becomes foo
-    if re.match(r'^.*?\.[a-z]+\.[a-z]+$', basename):
-        basename = re.findall(r'^(.*?)\.[a-z]+\.[a-z]+$', basename)[0]
-    else:
-        basename = os.path.splitext(basename)[0]
-    return basename
