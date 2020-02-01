@@ -64,7 +64,7 @@ AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
           action = 'store',
           help = 'identifier for sample fastq files to be globbed, e.g. AB for AB*.fastq.gz. Multiple identifiers can be specified in a single string when separated by commas, e.g. AB,MG,Megs')
 AddOption('--align_thread', dest = 'align_thread', type = 'int', nargs = 1, action = 'store',
-help = 'number of threads for alignment algorithm')
+help = 'number of threads for BWA-MEM aligner')
 AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, action = 'store',
 help = 'number of threads for samtools sort')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
