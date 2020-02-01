@@ -77,6 +77,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
         head_list = []
         #Test if file is gzip compressed
         if is_gzipped(fastq):
+            print('file %s is gzip compressed' % fastq)
             with gzip.open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
                     head_list = [l.decode('utf-8').strip().split() for l in islice(fq, nrows) if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l.decode('utf-8').strip())]
