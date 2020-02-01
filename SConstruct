@@ -87,7 +87,7 @@ help = 'output directory for samtools sort temporary files')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
 AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1,
-action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance.')
+action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance (yes = 1, no = 0). Default = 1')
 AddOption('--markdup', dest = 'markdup', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'choose to fix mates and mark duplicates for paired-end reads (yes = 1, no = 0). Default = 0')
 #------------------------------------------------------------------------------
