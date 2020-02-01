@@ -31,16 +31,18 @@ fastq_list = source_list_generator(env['SIDS'], env['FQDIR'])
 mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nheader = env['NHEADER'])
 
-extension = '.reduced.sorted.bam'
+bam_extension = '.reduced.sorted.bam'
 if env['MARKDUP']:
     markdup_msg = 'Mark duplicates in this build'
     logging.info(markdup_msg)
-    extension = '.reduced.sorted.markdup.bam'
+    bam_extension = '.reduced.sorted.markdup.bam'
 else:
     pass
+
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
     if os.path.isfile(fastq_dict[key]['R1']):
+        maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + bam_extension]
         if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
             if env['MARKDUP']:
                 logging.info('fixmates and mark duplicates in interleaved file %s' % fastq_dict[key]['R1'])
@@ -60,6 +62,7 @@ for key in fastq_dict:
 
     elif fastq_dict[key]['R1'] == 'single' or fastq_dict[key]['R2'] == 'single':
         single_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
+        maptarg = [assembly_id + '____' + get_basename(single_path) + bam_extension]
         env.BWA_Samtools_Single(maptarg, [env['ASSEMBLY'], single_path])
 
     else:
