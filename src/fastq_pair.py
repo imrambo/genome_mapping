@@ -12,7 +12,7 @@ import magic
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
 #------------------------------------------------------------------------------
-def source_list_generator(id_string, source_dir, pattern=('*.fq','*.fastq','*.fq.gz', '*fastq.gz')):
+def source_list_generator(id_string, source_dir, pattern=('.fq','.fastq','.fq.gz', '.fastq.gz')):
     """
     Generate list of source files using sample IDs
     """
@@ -21,14 +21,14 @@ def source_list_generator(id_string, source_dir, pattern=('*.fq','*.fastq','*.fq
         id_list = id_string.split(',')
         for i in id_list:
             for fpat in pattern:
-                idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (i, fpat))
+                idGlob = os.path.join(os.path.abspath(source_dir), '%s*%s' % (i, fpat))
                 if idGlob:
                     source_list.extend(list(glob.glob(idGlob, recursive = False)))
                 else:
                     logging.warning('file(s) for identifier %s not found' % i)
     else:
         for fpat in pattern:
-            idGlob = os.path.join(os.path.abspath(source_dir), '%s*.%s*' % (id_string, fpat))
+            idGlob = os.path.join(os.path.abspath(source_dir), '%s*%s' % (id_string, fpat))
             if idGlob:
                 source_list.extend(list(glob.glob(idGlob, recursive = False)))
             else:
