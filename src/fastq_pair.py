@@ -129,6 +129,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                     print(intl_warn_msg)
                     logging.warning(intl_warn_msg)
                     use_int_msg = 'Interleaved FASTQ %s will be used instead of single-end FASTQ %s' % (fastq, ' '.join(ident_exist))
+                    logging.info(use_int_msg)
                     fastq_dict[fastq_id_tag]['R1'] = fastq
                     fastq_dict[fastq_id_tag]['R2'] = 'interleaved'
         else:
