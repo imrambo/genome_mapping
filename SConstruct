@@ -10,8 +10,7 @@ import atexit
 '''
 Motivation: Map reads to a assembly with bwa mem and get SAM and BAM output.
 SAM and BAM will not include unmapped reads.
-Two depth files are built with and without intra depth variance.
-A network file is built for use with MMGenome1.
+Depth file can be toggled with or without intra-depth variance.
 
 Author: Ian Rambo
 Contact: ian.rambo@utexas.edu
@@ -21,7 +20,6 @@ v.1.0.0.1
 '''
 EnsurePythonVersion(3, 5)
 #Add scripts directory to path
-#sys.path.insert(0, os.path.abspath('./src'))
 sys.path.append(os.path.abspath('./src'))
 #=============================================================================
 def optstring_join(optdict):
@@ -64,8 +62,6 @@ action = 'store', help = 'path to output directory')
 AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
           action = 'store',
           help = 'identifier for sample fastq files to be globbed, e.g. AB for AB*.fastq.gz. Multiple identifiers can be specified in a single string when separated by commas, e.g. AB,MG,Megs')
-# AddOption('--netsam', dest = 'netsam', type = 'str', nargs = 1,
-#          action = 'store', help = 'SAM file from mapping a particular FASTQ file for use in network.pl. E.g. if you want to use mapping of FOO42_R1.fastq.gz and FOO42_R2.fastq.gz, specify --netsam=FOO42')
 AddOption('--align_thread', dest = 'align_thread', type = 'int', nargs = 1, action = 'store',
 help = 'number of threads for alignment algorithm')
 AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, action = 'store',
@@ -86,7 +82,6 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
                           FQDIR=GetOption('fastq_dir'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
-                          #NETSAM=GetOption('netsam'),
                           NSLICE=GetOption('nslice'),
                           INTDEPTH=GetOption('nointdepth'))
 #=============================================================================
@@ -98,7 +93,7 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
 #Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':GetOption('align_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
-depthfile_opts_net = {'--noIntraDepthVariance':''}
+depthfile_opts_bin = {'--noIntraDepthVariance':''}
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
 bwa_index_builder = Builder(action = 'bwa index $SOURCE')
@@ -124,22 +119,12 @@ if GetOption('nointdepth'):
     depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES'
     depthfile_bin_builder = Builder(action = depthfile_bin_action)
 else:
-    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
+    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_bin)
     depthfile_bin_builder = Builder(action = depthfile_bin_action)
-#depthfile_net_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_net)
-#depthfile_net_builder = Builder(action = depthfile_net_action)
-
-
-#------------------------------------------------------------------------------
-#Builder for network file
-#network_action = 'perl src/network.pl -i $SOURCE -o $TARGET'
-#network_builder = Builder(action = network_action)
 #------------------------------------------------------------------------------
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
-#'Depthfile_Net':depthfile_net_builder,
 'Depthfile_Bin':depthfile_bin_builder,
-#'Network':network_builder,
 'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)
 #=============================================================================
