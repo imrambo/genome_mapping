@@ -16,7 +16,7 @@ Author: Ian Rambo
 Contact: ian.rambo@utexas.edu
 Thirteen... that's a mighty unlucky number... for somebody!
 
-v.1.0.0.1
+v.1.0.0.2
 '''
 EnsurePythonVersion(3, 5)
 #Add scripts directory to path
@@ -51,6 +51,18 @@ def remove_build_targets(tmpdir):
         print('Cannot delete directory "%s", does not exist' % tmpdir)
         pass
     return None
+#------------------------------------------------------------------------------
+def get_basename(file_path):
+    """
+    Get file basename, excluding multiple extensions.
+    """
+    basename = os.path.basename(file_path)
+    #Remove two extensions, e.g. foo.tar.gz becomes foo
+    if re.match(r'^.*?\.[a-z]+\.[a-z]+$', basename):
+        basename = re.findall(r'^(.*?)\.[a-z]+\.[a-z]+$', basename)[0]
+    else:
+        basename = os.path.splitext(basename)[0]
+    return basename
 #=============================================================================
 #Command line options and Environment
 AddOption('--fastq_dir', dest='fastq_dir', type='string', nargs=1,
@@ -68,7 +80,7 @@ AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, 
 help = 'number of threads for samtools sort')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
-AddOption('--nslice', dest = 'nslice', type = 'int', nargs = 1, action = 'store',
+AddOption('--nheader', dest = 'nheader', type = 'int', nargs = 1, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved.')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
 help = 'output directory for samtools sort temporary files')
@@ -76,14 +88,17 @@ AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
 AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1,
 action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance.')
+AddOption('--markdup', dest = 'markdup', type = 'int', nargs = 1,
+action = 'store', default = 0, help = 'choose to fix mates and mark duplicates for paired-end reads (yes = 1, no = 0). Default = 0')
 #------------------------------------------------------------------------------
 #Initialize environment
 env = Environment(ASSEMBLY=GetOption('assembly'),
                           FQDIR=GetOption('fastq_dir'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
-                          NSLICE=GetOption('nslice'),
-                          INTDEPTH=GetOption('nointdepth'))
+                          NHEADER=GetOption('nheader'),
+                          INTDEPTH=GetOption('nointdepth'),
+                          MARKDUP=GetOption('markdup'))
 #=============================================================================
 ###
 ### Builders
@@ -113,6 +128,22 @@ bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 #bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hS -F4 - | tee ${TARGETS[0]} | samtools view -huS - | samtools sort %s -o - > ${TARGETS[1]}' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -huS -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
+
+bwa_samtools_intl_markdup = """bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | \
+    samtools view -hu -F4 - | \
+    samtools sort %s -n -O bam - | \
+    samtools fixmate -mr -O bam - - | \
+    samtools sort %s -O bam - | \
+    samtools markdup -r - $TARGET""" % (bwa_optstring, samtools_sort_optstring, samtools_sort_optstring)
+bwa_samtools_intl_markdup_builder = Builder(action = bwa_samtools_intl_markdup)
+
+bwa_samtools_r1r2_markdup = """bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | \
+    samtools view -hu -F4 - | \
+    samtools sort %s -n -O bam - | \
+    samtools fixmate -mr -O bam - - | \
+    samtools sort %s -O bam - | \
+    samtools markdup -r - $TARGET""" % (bwa_optstring, samtools_sort_optstring, samtools_sort_optstring)
+bwa_samtools_r1r2_markdup_builder = Builder(action = bwa_samtools_r1r2_markdup)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation
 if GetOption('nointdepth'):
@@ -124,6 +155,8 @@ else:
 #------------------------------------------------------------------------------
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
+'BWA_Samtools_Markdup_Intl':bwa_samtools_intl_markdup_builder,
+'BWA_Samtools_Markdup_R1R2':bwa_samtools_r1r2_markdup_builder,
 'Depthfile_Bin':depthfile_bin_builder,
 'BWA_index':bwa_index_builder}
 env.Append(BUILDERS = builders)

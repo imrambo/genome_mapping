@@ -8,7 +8,7 @@ from warnings import warn
 from fastq_pair import *
 
 '''
-2019 Ian Rambo
+2020 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
 '''
 bwa_index_targets = [env['ASSEMBLY'] + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
@@ -20,25 +20,35 @@ env.BWA_index(bwa_index_targets, env['ASSEMBLY'])
 fastq_list = source_list_generator(env['SIDS'], env['FQDIR'], 'fastq')
 #------------------------------------------------------------------------------
 mapping_targets = list()
-fastq_dict = find_fastq_pairs(fastq_list, nslice = env['NSLICE'])
+fastq_dict = find_fastq_pairs(fastq_list, nheader = env['NHEADER'])
 
+extension = '.reduced.sorted.bam'
+if env['MARKDUP']:
+    extension = '.reduced.sorted.markdup.bam'
 for key in fastq_dict:
-    #maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + x for x in ['.reduced.sam', '.reduced.sorted.bam']]
-    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + '.reduced.sorted.bam']
+    maptarg = [os.path.splitext(os.path.basename(fastq_dict[key]['R1']))[0] + extension]
     mapping_targets.extend(maptarg)
     Default(env.Install(env['OUTDIR'], maptarg))
 
     if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
-        env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
+        if env['MARKDUP']:
+            print('Mark duplicates')
+            env.BWA_Samtools_Markdup_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'])
+        else:
+            env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
 
     elif 'R1' in fastq_dict[key].keys() and 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] != 'interleaved':
-        env.BWA_Samtools_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
+        if env['MARKDUP']:
+            print('Mark duplicates')
+            env.BWA_Samtools_Markdup_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
+        else:
+            env.BWA_Samtools_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
 
     else:
         pass
 #------------------------------------------------------------------------------
 #get the basename of the reference assembly and use as its ID
-assembly_id = os.path.splitext(os.path.basename(env['ASSEMBLY']))[0]
+assembly_id = get_basename(env['ASSEMBLY'])
 #Depth file
 depthfile_bin_target = assembly_id + '_cov'
 
