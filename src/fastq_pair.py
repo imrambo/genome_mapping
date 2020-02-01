@@ -85,6 +85,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                     head_list = [l.decode('utf-8').strip().split() for l in fq if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l.decode('utf-8').strip())]
                 else:
                     logging.error('fastq_pair: nheader value must be an integer, or string "ALL".')
+                print(head_list)
         else:
             with open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
