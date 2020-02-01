@@ -64,7 +64,7 @@ scons --fastq_dir=<path to directory containing fastq files> --assembly=<path to
 
 Note that for SCons, the options must not have spaces between the values and names.
 
-For sanity reasons and ensuring the script runs correctly during a production run,
+For sanity reasons and ensuring the script runs correctly before doing a production run,
 use the SCons --dry-run option.
 
 By default, SCons will create a build in the same directory as the SConstruct.
