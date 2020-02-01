@@ -68,8 +68,8 @@ AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, 
 help = 'number of threads for samtools sort')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
-AddOption('--nheader', dest = 'nheader', type = 'int', nargs = 1, action = 'store',
-help = 'number of headers from fastq file for determining if interleaved.')
+AddOption('--nheader', dest = 'nheader', type = 'int', default = 0, action = 'store',
+help = 'number of headers from fastq file for determining if interleaved. If 0, use all headers. Default = 0')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
 help = 'output directory for samtools sort temporary files')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
@@ -87,6 +87,8 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
                           NHEADER=GetOption('nheader'),
                           INTDEPTH=GetOption('nointdepth'),
                           MARKDUP=GetOption('markdup'))
+if env['NHEADER'] == 0:
+    env['NHEADER'] = 'ALL'
 #=============================================================================
 ###
 ### Builders
