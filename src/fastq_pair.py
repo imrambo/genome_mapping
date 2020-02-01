@@ -125,10 +125,11 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
             else:
                 if os.path.isfile(fastq_dict[fastq_id_tag]['R1']) or fastq_dict[fastq_id_tag]['R2'] != 'interleaved':
                     ident_exist = [fastq_dict[key][v] for key in fastq_dict.keys() for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])]
-                    intl_warn_msg = 'WARNING: same identifier %s present in both %s and interleaved FASTQ %s' % (fastq_id_tag, ' '.join(ident_exist), fastq)
+                    intl_warn_msg = '\nWARNING: same identifier %s present in both %s and interleaved FASTQ %s\n' % (fastq_id_tag, ' '.join(ident_exist), fastq)
                     print(intl_warn_msg)
                     logging.warning(intl_warn_msg)
-                    use_int_msg = 'Interleaved FASTQ %s will be used instead of single-end FASTQ %s' % (fastq, ' '.join(ident_exist))
+                    use_int_msg = '\nInterleaved FASTQ %s will be used instead of single-end FASTQ %s\n' % (fastq, ' '.join(ident_exist))
+                    print(use_int_msg)
                     logging.info(use_int_msg)
                     fastq_dict[fastq_id_tag]['R1'] = fastq
                     fastq_dict[fastq_id_tag]['R2'] = 'interleaved'
