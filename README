@@ -11,6 +11,7 @@ This script is intended to ensure you:
 1) can reproduce large-scale mapping runs
 2) do not repeat completed steps that might take a long time
 3) do not produce huge intermediate files (e.g. unfiltered SAM)
+4) can automate mapping depending on FASTQ type
 
 Currently optimized for Linux 64-bit systems.
 
