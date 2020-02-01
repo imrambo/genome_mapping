@@ -31,6 +31,14 @@ conda environment using the "environment_linux64.yml" file:
 
 conda env create -f environment_linux64.yml
 
+and then activate the environment:
+
+conda activate scons_map
+
+or, depending on your system:
+
+source activate scons_map
+
 ###############
 Running the script
 ###############
