@@ -43,9 +43,9 @@ else:
 print(fastq_dict)
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
-    if os.path.isfile(fastq_dict[key]['R1']):
-        maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + bam_extension]
+    if os.path.isfile(fastq_dict[key]['R1']:
         if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
+            maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + bam_extension]
             if env['MARKDUP']:
                 logging.info('fixmates and mark duplicates in interleaved file %s' % fastq_dict[key]['R1'])
                 env.BWA_Samtools_Markdup_Intl(maptarg, env['ASSEMBLY'], fastq_dict[key]['R1'])
@@ -53,7 +53,8 @@ for key in fastq_dict:
                 logging.info('bwa > samtools sort for interleaved file %s' % fastq_dict[key]['R1'])
                 env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
 
-        elif os.path.isfile(fastq_dict[key]['R2']) and fastq_dict[key]['R2'] != 'interleaved':
+        elif os.path.isfile(fastq_dict[key]['R2']):
+            maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + bam_extension]
             if env['MARKDUP']:
                 logging.info('fixmates and mark duplicates for R1-R2 %s %s' % (fastq_dict[key]['R1'], fastq_dict[key]['R2']))
                 env.BWA_Samtools_Markdup_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
@@ -69,6 +70,10 @@ for key in fastq_dict:
         env.BWA_Samtools_Single(maptarg, [env['ASSEMBLY'], single_path])
         mapping_targets.extend(maptarg)
 
+    elif 'error' in fastq_dict[key].keys():
+        error_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
+        logging.warning('FASTQ with errors %s' % error_path)
+        break
     else:
         logging.error('WARNING: no interleaved, R1-R2 pair, or single-end FASTQ found. Please inspect your data.')
 #------------------------------------------------------------------------------
