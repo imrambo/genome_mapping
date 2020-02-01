@@ -33,7 +33,7 @@ for key in fastq_dict:
     if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
         if env['MARKDUP']:
             print('Mark duplicates')
-            env.BWA_Samtools_Markdup_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'])
+            env.BWA_Samtools_Markdup_Intl(maptarg, env['ASSEMBLY'], fastq_dict[key]['R1'])
         else:
             env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
 
