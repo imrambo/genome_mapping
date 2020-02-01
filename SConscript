@@ -40,6 +40,7 @@ if env['MARKDUP']:
 else:
     pass
 
+print(fastq_dict)
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
     if os.path.isfile(fastq_dict[key]['R1']):
