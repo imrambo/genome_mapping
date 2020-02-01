@@ -19,6 +19,7 @@ Thirteen... that's a mighty unlucky number... for somebody!
 v.1.0.0.2
 '''
 EnsurePythonVersion(3, 8)
+EnsureSConsVersion(3, 1)
 #Add scripts directory to path
 sys.path.append(os.path.abspath('./src'))
 #=============================================================================

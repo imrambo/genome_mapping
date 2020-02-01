@@ -10,6 +10,8 @@ import magic
 '''
 2020 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
+
+version 1.0.0.2
 '''
 #------------------------------------------------------------------------------
 def source_list_generator(id_string, source_dir):
