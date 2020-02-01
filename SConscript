@@ -21,7 +21,7 @@ fastq_list = source_list_generator(env['SIDS'], env['FQDIR'])
 #------------------------------------------------------------------------------
 mapping_targets = list()
 fastq_dict = find_fastq_pairs(fastq_list, nheader = env['NHEADER'])
-print(fastq_dict)
+
 extension = '.reduced.sorted.bam'
 if env['MARKDUP']:
     extension = '.reduced.sorted.markdup.bam'
