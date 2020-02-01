@@ -148,6 +148,7 @@ else:
     depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_bin)
     depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #------------------------------------------------------------------------------
+#Add the builders to the environment 
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
 'BWA_Samtools_R1R2':bwa_samtools_r1r2_builder,
 'BWA_Samtools_Markdup_Intl':bwa_samtools_intl_markdup_builder,
