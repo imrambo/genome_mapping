@@ -73,3 +73,8 @@ Include the --rm_local_build=1 option to delete this build.
 This option is coded outside of the SCons framework, so doing a --dry-run
 with --rm_local_build=1 will raise an error since the directory is not built.
 This can be ignored.
+
+Interleaved FASTQ will take priority over single-end reads or R1-R2 reads that contain the same
+Illumina identifier. To avoid this, you can use a more specific identifier string
+for --sampleids to only glob certain files, or move your interleaved and R1-R2
+files into different directories.

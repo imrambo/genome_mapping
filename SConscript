@@ -40,23 +40,23 @@ else:
     pass
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
-    maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + extension]
-    mapping_targets.extend(maptarg)
-    Default(env.Install(env['OUTDIR'], maptarg))
+    if os.path.isfile(fastq_dict[key]['R1']):
+        if 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
+            if env['MARKDUP']:
+                logging.info('fixmates and mark duplicates in interleaved file %s' % fastq_dict[key]['R1'])
+                env.BWA_Samtools_Markdup_Intl(maptarg, env['ASSEMBLY'], fastq_dict[key]['R1'])
+            else:
+                logging.info('bwa > samtools sort for interleaved file %s' % fastq_dict[key]['R1'])
+                env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
 
-    if os.path.isfile(fastq_dict[key]['R1']) and 'R2' in fastq_dict[key].keys() and fastq_dict[key]['R2'] == 'interleaved':
-        if env['MARKDUP']:
-            logging.info('fixmates and mark duplicates in interleaved file %s' % fastq_dict[key]['R1'])
-            env.BWA_Samtools_Markdup_Intl(maptarg, env['ASSEMBLY'], fastq_dict[key]['R1'])
+        elif os.path.isfile(fastq_dict[key]['R2']) and fastq_dict[key]['R2'] != 'interleaved':
+            if env['MARKDUP']:
+                logging.info('fixmates and mark duplicates for R1-R2 %s %s' % (fastq_dict[key]['R1'], fastq_dict[key]['R2']))
+                env.BWA_Samtools_Markdup_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
+            else:
+                env.BWA_Samtools_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
         else:
-            env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
-
-    elif os.path.isfile(fastq_dict[key]['R1']) and os.path.isfile(fastq_dict[key]['R2']) and fastq_dict[key]['R2'] != 'interleaved':
-        if env['MARKDUP']:
-            logging.info('fixmates and mark duplicates for R1-R2 %s %s' % (fastq_dict[key]['R1'], fastq_dict[key]['R2']))
-            env.BWA_Samtools_Markdup_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
-        else:
-            env.BWA_Samtools_R1R2(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1'], fastq_dict[key]['R2']])
+            pass
 
     elif fastq_dict[key]['R1'] == 'single' or fastq_dict[key]['R2'] == 'single':
         single_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]

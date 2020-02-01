@@ -113,17 +113,24 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
         else:
             interleaved = False
 
+        #Sample Illumina identifier
+        fastq_id_tag = head_list[0][0]
+
         if interleaved:
-            #If the interleaved FASTQ is not in the dicitonary, add it
-            if not head_list[0][0] in fastq_dict:
-                fastq_dict[head_list[0][0]] = {}
-                fastq_dict[head_list[0][0]]['R1'] = fastq
-                fastq_dict[head_list[0][0]]['R2'] = 'interleaved'
+            #If the interleaved FASTQ is not in the dictionary, add it
+            if not fastq_id_tag in fastq_dict.keys():
+                fastq_dict[fastq_id_tag] = {}
+                fastq_dict[fastq_id_tag]['R1'] = fastq
+                fastq_dict[fastq_id_tag]['R2'] = 'interleaved'
             else:
-                ident_exist = [fastq_dict[key][v] for key in fastq_dict.keys() for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
-                intl_warn_msg = 'WARNING: same identifier %s present in both %s and interleaved FASTQ %s' % (head_list[0][0], ident_exist, fastq)
-                print(intl_warn_msg)
-                logging.warning(intl_warn_msg)
+                if os.path.isfile(fastq_dict[fastq_id_tag]['R1']) or fastq_dict[fastq_id_tag]['R2'] != 'interleaved':
+                    ident_exist = [fastq_dict[key][v] for key in fastq_dict.keys() for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])]
+                    intl_warn_msg = 'WARNING: same identifier %s present in both %s and interleaved FASTQ %s' % (fastq_id_tag, ' '.join(ident_exist), fastq)
+                    print(intl_warn_msg)
+                    logging.warning(intl_warn_msg)
+                    use_int_msg = 'Interleaved FASTQ %s will be used instead of single-end FASTQ %s' % (fastq, ' '.join(ident_exist))
+                    fastq_dict[fastq_id_tag]['R1'] = fastq
+                    fastq_dict[fastq_id_tag]['R2'] = 'interleaved'
         else:
             #Test to see if the reads are single-end
             single = False
@@ -131,26 +138,37 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                 single = True
 
             if single:
-                if head_list[0][1].startswith('1'):
-                    if isinstance(nheader, int):
-                        logging.info('%s: single-end FASTQ R1 based on %d headers' % (os.path.basename(fastq), nheader))
-                    elif isintance(nheader, str) and nheader == 'ALL':
-                        logging.info('%s: single-end FASTQ R1 based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
-                    fastq_dict[head_list[0][0]]['R1'] = fastq
-                    fastq_dict[head_list[0][0]]['R2'] = 'single'
-                elif head_list[0][1].startswith('2'):
-                    if isinstance(nheader, int):
-                        logging.info('%s: single-end FASTQ R1 based on %d headers' % (os.path.basename(fastq), nheader))
-                    elif isintance(nheader, str) and nheader == 'ALL':
-                        logging.info('%s: single-end FASTQ R2 based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
-                    fastq_dict[head_list[0][0]]['R1'] = 'single'
-                    fastq_dict[head_list[0][0]]['R2'] = fastq
+                if not fastq_id_tag in fastq_dict.keys():
+                    fastq_dict[fastq_id_tag] = {}
+                    if head_list[0][1].startswith('1'):
+                        if isinstance(nheader, int):
+                            logging.info('%s: single-end FASTQ R1 based on %d headers' % (os.path.basename(fastq), nheader))
+                        elif isintance(nheader, str) and nheader == 'ALL':
+                            logging.info('%s: single-end FASTQ R1 based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
+                        else:
+                            pass
+                        fastq_dict[fastq_id_tag]['R1'] = fastq
+                        fastq_dict[fastq_id_tag]['R2'] = 'single'
+                    elif head_list[0][1].startswith('2'):
+                        if isinstance(nheader, int):
+                            logging.info('%s: single-end FASTQ R1 based on %d headers' % (os.path.basename(fastq), nheader))
+                        elif isintance(nheader, str) and nheader == 'ALL':
+                            logging.info('%s: single-end FASTQ R2 based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
+                        fastq_dict[fastq_id_tag]['R1'] = 'single'
+                        fastq_dict[fastq_id_tag]['R2'] = fastq
 
+                    else:
+                        logging.warning('please check if FASTQ header is in format Casava 1.8+')
                 else:
-                    logging.warning('please check if FASTQ header is in format Casava 1.8+')
+                    if os.path.isfile(fastq_dict[fastq_id_tag]['R1']) and os.path.isfile(fastq_dict[fastq_id_tag]['R2']):
+                        single_warn_msg = 'More than two FASTQ files found with the same identifier %s for single-end reads: %s  %s  %s' % (fastq_id_tag, fastq_dict[fastq_id_tag]['R1'], fastq_dict[fastq_id_tag]['R2'], fastq)
+                        logging.warning(single_warn_msg)
+                        break
+                    if fastq_dict[fastq_id_tag]['R2'] == 'interleaved':
+                        logging.info('Interleaved FASTQ %s with identifer %s already in dictionary, will ignore single-end reads %s' % (fastq_dict[fastq_id_tag]['R1'], fastq_id_tag, fastq))
+                        break
 
             else:
-                fastq_dict[head_list[0][0]] = {}
                 if head_list[0][1].startswith('1'):
                     if isinstance(nheader, int):
                         logging.warning('%s: non-interleaved FASTQ R1 : potential interleave error based on %d headers' % (os.path.basename(fastq), nheader))
@@ -158,17 +176,17 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                         logging.warning('%s: non-interleaved FASTQ R1 : potential interleave error based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
                     else:
                         pass
-                    fastq_dict[head_list[0][0]]['R1'] = fastq
-                    fastq_dict[head_list[0][0]]['R2'] = 'error'
+                    fastq_dict[fastq_id_tag]['R1'] = fastq
+                    fastq_dict[fastq_id_tag]['R2'] = 'error'
                 elif head_list[0][1].startswith('2'):
                     if isinstance(nheader, int):
                         logging.warning('%s: non-interleaved FASTQ R2 : potential interleave error based on %d headers' % (os.path.basename(fastq), nheader))
                     elif isintance(nheader, str) and nheader == 'ALL':
-                        logging.warning('%s: non-interleaved FASTQ R1 : potential interleave error based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
+                        logging.warning('%s: non-interleaved FASTQ R2 : potential interleave error based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
                     else:
                         pass
-                    fastq_dict[head_list[0][0]]['R1'] = 'error'
-                    fastq_dict[head_list[0][0]]['R2'] = fastq
+                    fastq_dict[fastq_id_tag]['R1'] = 'error'
+                    fastq_dict[fastq_id_tag]['R2'] = fastq
                 else:
                     logging.warning('please check if FASTQ header is in format Casava 1.8+')
 
@@ -180,7 +198,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
             if exclude:
                 #Remove entries from dictionary with errors
                 del fastq_dict[key]
-                logging.info('exclude == True, removed non-paired FASTQ %s from dictionary' % solo)
+                logging.info('exclude == True, removed non-paired error FASTQ %s from dictionary' % solo)
 
             else:
                 pass
