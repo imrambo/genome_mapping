@@ -61,7 +61,7 @@ The script must be run from the same directory as the SConstruct.
 cd /path/to/genome_mapping
 
 Be sure to use all of these included options:
-scons --fastq_dir=<path to directory containing fastq files> --assembly=<path to assembly you are mapping to> --outdir=<output directory> --sampleids=<sample id patterns of FASTQ files> --align_thread=<threads for BWA-mem> --samsort_thread=<theads for samtools sort> --samsort_mem=<memory per thread for samtools sort. Specify number and G,M,K> --nslice=<number of FASTQ headers to use for interleave check. Must be >4> --tmpdir=<directory for temporary files>
+scons --fastq_dir=<path to directory containing fastq files> --assembly=<path to assembly you are mapping to> --outdir=<output directory> --sampleids=<sample id patterns of FASTQ files> --align_thread=<threads for BWA-mem> --samsort_thread=<theads for samtools sort> --samsort_mem=<memory per thread for samtools sort. Specify number and G,M,K> --nslice=<number of FASTQ headers to use for interleave check. Must be >4. Use 0 for all headers> --tmpdir=<directory for temporary files>
 
 Note that for SCons, the options must not have spaces between the values and names.
 
