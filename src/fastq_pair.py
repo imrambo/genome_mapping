@@ -89,7 +89,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
             with open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
                     head_list = [l.strip().split() for l in islice(fq, nrows) if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l)]
-                elif isintance(nheader, str) and nheader == 'ALL':
+                elif isinstance(nheader, str) and nheader == 'ALL':
                     head_list = [l.strip().split() for l in fq if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l)]
                 else:
                     logging.error('fastq_pair: nheader value must be an integer, or string "ALL".')
