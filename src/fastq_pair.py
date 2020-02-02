@@ -141,7 +141,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                 single = True
 
             if single:
-                if not fastq_id_tag in fastq_dict.keys():
+                if not fastq_id_tag in fastq_dict:
                     fastq_dict[fastq_id_tag] = {}
                     if head_list[0][1].startswith('1'):
                         if isinstance(nheader, int):
@@ -170,6 +170,14 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                     if fastq_dict[fastq_id_tag]['R2'] == 'interleaved':
                         logging.info('Interleaved FASTQ %s with identifer %s already in dictionary, will ignore single-end reads %s' % (fastq_dict[fastq_id_tag]['R1'], fastq_id_tag, fastq))
                         break
+                    #If matching read pair is found, add it to the dictionary and replace 'single' type
+                    if fastq_dict[fastq_id_tag]['R1'] == 'single' and head_list[0][1].startswith('1'):
+                        fastq_dict[fastq_id_tag]['R1'] = fastq
+                    elif fastq_dict[fastq_id_tag]['R2'] == 'single' and head_list[0][1].startswith('2'):
+                        fastq_dict[fastq_id_tag]['R2'] = fastq
+                    else:
+                        pass
+
 
             else:
                 if not fastq_id_tag in fastq_dict.keys():
