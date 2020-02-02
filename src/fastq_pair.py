@@ -136,7 +136,8 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
         else:
             #Test to see if the reads are single-end
             single = False
-            if all([head_list[n-1][0] == head_list[n][0] and head_list[n-1][1][0] == head_list[n][1][0] for n in range(1, len(head_list), 2)]):
+            single_test = all([head_list[n-1][0] == head_list[n][0] and head_list[n-1][1][0] == head_list[n][1][0] for n in range(1, len(head_list), 2)])
+            if single_test:
                 single = True
 
             if single:
