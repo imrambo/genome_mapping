@@ -125,10 +125,10 @@ bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are separate R1 and R2
-bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -huS -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hu -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 
-bwa_samtools_single_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} | samtools view -huS -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_single_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} | samtools view -hu -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_single_builder = Builder(action = bwa_samtools_single_action)
 
 bwa_samtools_intl_markdup = """bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | \
