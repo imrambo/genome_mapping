@@ -54,7 +54,7 @@ for key in fastq_dict:
             maptarg = [assembly_id + '____' + get_basename(fastq_dict[key]['R1']) + bam_extension]
             if env['MARKDUP']:
                 logging.info('fixmates and mark duplicates in interleaved file %s' % fastq_dict[key]['R1'])
-                env.BWA_Samtools_Markdup_Intl(maptarg, env['ASSEMBLY'], fastq_dict[key]['R1'])
+                env.BWA_Samtools_Markdup_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
             else:
                 logging.info('bwa > samtools sort for interleaved file %s' % fastq_dict[key]['R1'])
                 env.BWA_Samtools_Intl(maptarg, [env['ASSEMBLY'], fastq_dict[key]['R1']])
