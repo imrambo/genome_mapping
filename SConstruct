@@ -167,7 +167,7 @@ env.Append(BUILDERS = builders)
 #=============================================================================
 #SConscript
 if env['ASSEMBLY']:
-    build_tmp = get_basename(env['ASSEMBLY']) + '_build_' + str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+    build_tmp = get_basename(env['ASSEMBLY']) + '_build')
     SConscript(['SConscript'], exports='env', variant_dir=build_tmp, duplicate=0)
 #------------------------------------------------------------------------------
 #If --rmbuild=1, remove the build targets in the temporary directory
