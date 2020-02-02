@@ -202,6 +202,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                     fastq_dict[fastq_id_tag]['R2'] = fastq
                 else:
                     logging.warning('please check if FASTQ header is in format Casava 1.8+')
+                    break
 
     for key in fastq_dict:
         if 'error' in fastq_dict[key].keys():
