@@ -66,10 +66,16 @@ for key in fastq_dict:
 
         mapping_targets.extend(maptarg)
     elif fastq_dict[key]['R1'] == 'single' or fastq_dict[key]['R2'] == 'single':
-        single_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
-        maptarg = [assembly_id + '____' + get_basename(single_path) + bam_extension]
-        env.BWA_Samtools_Single(maptarg, [env['ASSEMBLY'], single_path])
-        mapping_targets.extend(maptarg)
+        if env['MARKDUP']:
+            single_markdup_err_msg = 'fixmate and markdup builds not yet supported for single-end reads'
+            print(single_markdup_err_msg)
+            logging.error(single_markdup_err_msg)
+            break
+        else:
+            single_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
+            maptarg = [assembly_id + '____' + get_basename(single_path) + bam_extension]
+            env.BWA_Samtools_Single(maptarg, [env['ASSEMBLY'], single_path])
+            mapping_targets.extend(maptarg)
 
     elif 'error' in fastq_dict[key].keys():
         error_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
