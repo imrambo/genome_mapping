@@ -11,6 +11,8 @@ import logging
 '''
 2020 Ian Rambo
 Thirteen... that's a mighty unlucky number... for somebody!
+
+v.1.0.0.2
 '''
 #Set up the logger for this build
 logging.basicConfig(format='%(asctime)s - %(message)s',
@@ -40,7 +42,6 @@ if env['MARKDUP']:
 else:
     pass
 
-print(fastq_dict)
 #Loop through the FASTQ files and create the mapping TARGETS
 for key in fastq_dict:
     maptarg = []
@@ -85,7 +86,6 @@ for key in fastq_dict:
         logging.error('WARNING: no interleaved, R1-R2 pair, or single-end FASTQ found. Please inspect your data.')
 #------------------------------------------------------------------------------
 #Depth file
-print(mapping_targets)
 depthfile_bin_target = assembly_id + '_cov'
 
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
