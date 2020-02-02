@@ -73,7 +73,6 @@ for key in fastq_dict:
             break
         else:
             single_path = [fastq_dict[key][v] for v in fastq_dict[key].keys() if os.path.isfile(fastq_dict[key][v])][0]
-            print(single_path)
             maptarg = [assembly_id + '____' + get_basename(single_path) + bam_extension]
             env.BWA_Samtools_Single(maptarg, [env['ASSEMBLY'], single_path])
             mapping_targets.extend(maptarg)
@@ -86,6 +85,7 @@ for key in fastq_dict:
         logging.error('WARNING: no interleaved, R1-R2 pair, or single-end FASTQ found. Please inspect your data.')
 #------------------------------------------------------------------------------
 #Depth file
+print(mapping_targets)
 depthfile_bin_target = assembly_id + '_cov'
 
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
