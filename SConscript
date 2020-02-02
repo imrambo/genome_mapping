@@ -15,6 +15,9 @@ Thirteen... that's a mighty unlucky number... for somebody!
 v.1.0.0.2
 '''
 version = 'v.1.0.0.2'
+#Error message to display if trying to use markdup builder with single-end reads
+single_markdup_err_msg = 'ERROR: fixmate and markdup build not supported for single-end reads in version %s. Retry with --markdup=0' % version
+
 #Set up the logger for this build
 logging.basicConfig(format='%(asctime)s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG,
@@ -69,7 +72,6 @@ for key in fastq_dict:
         mapping_targets.extend(maptarg)
     elif fastq_dict[key]['R1'] == 'single' or fastq_dict[key]['R2'] == 'single':
         if env['MARKDUP']:
-            single_markdup_err_msg = 'ERROR: fixmate and markdup builds not yet supported for single-end reads in version %s' % version
             print(single_markdup_err_msg)
             logging.error(single_markdup_err_msg)
             break
