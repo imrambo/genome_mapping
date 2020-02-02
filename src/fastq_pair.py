@@ -150,15 +150,21 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                             logging.info('%s: single-end FASTQ R1 based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
                         else:
                             pass
+
                         fastq_dict[fastq_id_tag]['R1'] = fastq
                         fastq_dict[fastq_id_tag]['R2'] = 'single'
+
+
                     elif head_list[0][1].startswith('2'):
                         if isinstance(nheader, int):
                             logging.info('%s: single-end FASTQ R2 based on %d headers' % (os.path.basename(fastq), nheader))
                         elif isintance(nheader, str) and nheader == 'ALL':
                             logging.info('%s: single-end FASTQ R2 based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
+
                         fastq_dict[fastq_id_tag]['R1'] = 'single'
                         fastq_dict[fastq_id_tag]['R2'] = fastq
+
+                        logging.info('single-end R2 read %s' % fastq)
 
                     else:
                         logging.warning('please check if FASTQ header is in format Casava 1.8+')
@@ -171,16 +177,20 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                         logging.info('Interleaved FASTQ %s with identifer %s already in dictionary, will ignore single-end reads %s' % (fastq_dict[fastq_id_tag]['R1'], fastq_id_tag, fastq))
                         break
                     #If matching read pair is found, add it to the dictionary and replace 'single' type
-                    if fastq_dict[fastq_id_tag]['R1'] == 'single' and head_list[0][1].startswith('1'):
+                    if os.path.isfile(fastq_dict[fastq_id_tag]['R2']) and fastq_dict[fastq_id_tag]['R1'] == 'single' and head_list[0][1].startswith('1'):
+                        logging.info('found pair for existing R2 %s ---> R1 %s' % (fastq_dict[fastq_id_tag]['R2'], fastq))
                         fastq_dict[fastq_id_tag]['R1'] = fastq
-                    elif fastq_dict[fastq_id_tag]['R2'] == 'single' and head_list[0][1].startswith('2'):
+
+                    elif os.path.isfile(fastq_dict[fastq_id_tag]['R1']) and fastq_dict[fastq_id_tag]['R2'] == 'single' and head_list[0][1].startswith('2'):
+                        logging.info('found pair for existing R1 %s ---> R2 %s' % (fastq_dict[fastq_id_tag]['R1'], fastq))
                         fastq_dict[fastq_id_tag]['R2'] = fastq
+
                     else:
                         pass
 
 
             else:
-                if not fastq_id_tag in fastq_dict.keys():
+                if not fastq_id_tag in fastq_dict:
                     fastq_dict[fastq_id_tag] = {}
                 if head_list[0][1].startswith('1'):
                     if isinstance(nheader, int):
