@@ -154,7 +154,7 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
                         fastq_dict[fastq_id_tag]['R2'] = 'single'
                     elif head_list[0][1].startswith('2'):
                         if isinstance(nheader, int):
-                            logging.info('%s: single-end FASTQ R1 based on %d headers' % (os.path.basename(fastq), nheader))
+                            logging.info('%s: single-end FASTQ R2 based on %d headers' % (os.path.basename(fastq), nheader))
                         elif isintance(nheader, str) and nheader == 'ALL':
                             logging.info('%s: single-end FASTQ R2 based on ALL (%d) headers' % (os.path.basename(fastq), len(head_list)))
                         fastq_dict[fastq_id_tag]['R1'] = 'single'
