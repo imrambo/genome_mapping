@@ -59,9 +59,10 @@ Local Options:
   --align_thread=ALIGN_THREAD
                               number of threads for BWA-MEM aligner
   --samsort_thread=SAMSORT_THREAD
-                              number of threads for samtools sort
+                              number of threads for samtools sort. Default = 1
   --samsort_mem=SAMSORT_MEM   memory per thread for samtools sort. Specify an
-                                integer with K, M, or G suffix, e.g. 10G
+                                integer with K, M, or G suffix, e.g. 10G. Default
+                                = 768M.
   --nheader=NHEADER           number of headers from fastq file for
                                 determining if interleaved. If 0, use all
                                 headers. Default = 0

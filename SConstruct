@@ -69,9 +69,9 @@ AddOption('--sampleids', dest = 'sids', type = 'str', nargs = 1,
 AddOption('--align_thread', dest = 'align_thread', type = 'int', nargs = 1, action = 'store',
 help = 'number of threads for BWA-MEM aligner')
 AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, action = 'store',
-help = 'number of threads for samtools sort')
+default = 1, help = 'number of threads for samtools sort')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
-help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
+default = '768M', help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G')
 AddOption('--nheader', dest = 'nheader', type = 'int', default = 0, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. If 0, use all headers. Default = 0')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
