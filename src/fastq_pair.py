@@ -77,20 +77,21 @@ def find_fastq_pairs(fastq_list, nheader='ALL', exclude = False):
     for fastq in fastq_list:
         head_list = []
         #Inspect the FASTQ headers to see if they match the pattern for Casava 1.8+
+        fq_header_regex = r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:.*?'
         if is_gzipped(fastq):
             with gzip.open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
-                    head_list = [l.decode('utf-8').strip().split() for l in islice(fq, nrows) if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l.decode('utf-8').strip())]
+                    head_list = [l.decode('utf-8').strip().split() for l in islice(fq, nrows) if re.match(fq_header_regex, l.decode('utf-8').strip())]
                 elif isinstance(nheader, str) and nheader == 'ALL':
-                    head_list = [l.decode('utf-8').strip().split() for l in fq if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l.decode('utf-8').strip())]
+                    head_list = [l.decode('utf-8').strip().split() for l in fq if re.match(fq_header_regex, l.decode('utf-8').strip())]
                 else:
                     logging.error('fastq_pair: nheader value must be an integer, or string "ALL".')
         else:
             with open(fastq, 'r') as fq:
                 if isinstance(nheader, int):
-                    head_list = [l.strip().split() for l in islice(fq, nrows) if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l)]
+                    head_list = [l.strip().split() for l in islice(fq, nrows) if re.match(fq_header_regex, l)]
                 elif isinstance(nheader, str) and nheader == 'ALL':
-                    head_list = [l.strip().split() for l in fq if re.match(r'^\@.*?\:\d+\:.*?\:\d+\:\d+\:\d+\:\d+\s+\d\:.*?\:[ACTGN]+', l)]
+                    head_list = [l.strip().split() for l in fq if re.match(fq_header_regex, l)]
                 else:
                     logging.error('fastq_pair: nheader value must be an integer, or string "ALL".')
         int_test_list = []

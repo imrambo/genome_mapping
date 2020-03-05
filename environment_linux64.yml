@@ -36,3 +36,4 @@ dependencies:
   - wheel=0.34.1=py38_0
   - xz=5.2.4=h14c3975_4
   - zlib=1.2.11=h7b6447c_3
+  - pullseq=1.0.2=h84994c4_4
