@@ -96,6 +96,6 @@ depthfile_bin_target = assembly_id + '_cov'
 depthfile_sources = [m for m in mapping_targets if re.match(r'.*?\.bam', m)]
 
 Default(env.Install(env['OUTDIR'], depthfile_bin_target))
-
+Default(env.Install(env['OUTDIR'], depthfile_sources))
 env.Depthfile_Bin(depthfile_bin_target, depthfile_sources)
 #------------------------------------------------------------------------------
