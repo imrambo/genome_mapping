@@ -22,6 +22,9 @@ single_markdup_err_msg = 'ERROR: fixmate and markdup build not supported for sin
 logging.basicConfig(format='%(asctime)s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG,
     filename=env['LOGFILE'])
+#Write info about wrapper version to LOGFILE
+version_message = 'this is scons genome mapping wrapper %s' % version
+logging.info(version_message)
 
 print('writing logfile to %s' % env['LOGFILE'])
 bwa_index_targets = [env['ASSEMBLY'] + ext for ext in ['.bwt','.pac','.ann','.amb','.sa']]
@@ -47,6 +50,7 @@ else:
     pass
 
 #Loop through the FASTQ files and create the mapping TARGETS
+#The mapping method will be decided based on key-value pairs in the fastq_dict
 for key in fastq_dict:
     maptarg = []
     if os.path.isfile(fastq_dict[key]['R1']) and not fastq_dict[key]['R2'] == 'single':
