@@ -14,25 +14,29 @@ echo "need \$SLURM_NNODES set"
 exit
 fi
 
-WORKDIR=/global/cscratch1/sd/imrambo/coassembly_MANERR_02-12-2020/genome_mapping
-OUTDIR=/global/cscratch1/sd/imrambo/coassembly_MANERR_02-12-2020/manerr_coassembly_scons_map_debug
-ASSEMBLY=/global/cscratch1/sd/imrambo/coassembly_MANERR_02-12-2020/data/final_assembly-min1000.fa
+#Directory containing SCons wrapper; script needs to run from here
+workdir=/global/cscratch1/sd/imrambo/coassembly_MANERR_02-12-2020/genome_mapping
+#Output directory for SCons wrapper
+outdir=/global/cscratch1/sd/imrambo/coassembly_MANERR_02-12-2020/manerr_coassembly_scons_map_debug_run00
+#FASTA assembly to map to
+assembly=/global/cscratch1/sd/imrambo/coassembly_MANERR_02-12-2020/data/final_assembly-min1000_toy1000.fna
 
 #Create the output directory if it does not exist
-test -d $OUTDIR || mkdir -p $OUTDIR
+test -d $outdir || mkdir -p $outdir
 
-cd $WORKDIR
+#Memory per samtools sort thread
+sam_thread_mem=$(( ${SLURM_MEM_PER_NODE}/${SLURM_CPUS_ON_NODE} ))
 
-SAM_THREAD_MEM=$(( ${SLURM_MEM_PER_NODE}/${SLURM_CPUS_ON_NODE} ))
+#Logfiles
+parallel_log=${HOME}/joblogs/scons_map_TEST_${SLURM_NODEID}.joblog
+scons_log=${HOME}/joblogs/scons_map_TEST_${SLURM_NODEID}.log
 
-PARALLEL_LOG=${HOME}/joblogs/scons_map_TEST_${SLURM_NODEID}.joblog
-SCONS_LOG=${HOME}/joblogs/scons_map_TEST_${SLURM_NODEID}.log
-
-sort $1 | awk -v NNODE="$SLURM_NNODES" -v NODEID="$SLURM_NODEID" 'NR % NNODE == NODEID' | \
-    parallel --jobs $SLURM_NNODES --joblog $PARALLEL_LOG \
-    scons --dry-run --assembly=${ASSEMBLY} \
-    --read_percent_id=97 --logfile=${SCONS_LOG} \
-    --tmpdir=${SCRATCH}/tmp --nheader=20000 --samsort_mem=${SAM_THREAD_MEM} \
+cd $workdir && \
+    sort $1 | awk -v NNODE="$SLURM_NNODES" -v NODEID="$SLURM_NODEID" 'NR % NNODE == NODEID' | \
+    parallel --jobs $SLURM_NNODES --joblog $parallel_log \
+    scons --dry-run --assembly=${assembly} \
+    --read_percent_id=97 --logfile=${scons_log} \
+    --tmpdir=${SCRATCH}/tmp --nheader=20000 --samsort_mem=${sam_thread_mem} \
     --samsort_thread=${SLURM_CPUS_ON_NODE} --fastq_dir={//} --sampleids={/} \
-    --outdir=${OUTDIR} --rm_local_build=0 --noIntraDepthVariance=1 --markdup=1 \
+    --outdir=${outdir} --rm_local_build=0 --noIntraDepthVariance=1 --markdup=1 \
     --align_thread=${SLURM_CPUS_ON_NODE}

@@ -7,7 +7,7 @@
 #SBATCH -t 00:30:00
 #SBATCH -q debug
 #SBATCH --nodes=2
-#SBATCH --job-name=scons_map_scale_test
+#SBATCH --job-name=scons_map_scale_test_00
 #SBATCH --mail-user=imrambo@lbl.gov
 #SBATCH --mail-type=ALL
 #SBATCH -C haswell
@@ -18,4 +18,4 @@ module load parallel
 
 source activate scons_map
 
-srun -k -c 64 -n 16 -W 0 scons_map_parallel_payload.sh $1
+srun -k -c 64 -n 2 -W 0 scons_map_parallel_payload.sh $1
