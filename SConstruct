@@ -72,6 +72,8 @@ AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, 
 default = 1, help = 'number of threads for samtools sort. Default = 1')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 default = '768M', help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G. Default = 768M')
+AddOption('--samsort_method', dest = 'samsort_method', type = 'str', nargs = 1, action = 'store',
+default = 'name', help = 'Specify whether samtools will sort the BAM by read name or coordinate. Choose "name" or "coord". Default = name')
 AddOption('--nheader', dest = 'nheader', type = 'int', default = 0, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. If 0, use all headers. Default = 0')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
@@ -109,7 +111,20 @@ if env['NHEADER'] == 0:
 #Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':GetOption('align_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
-depthfile_opts_bin = {'--noIntraDepthVariance':'', '--percentIdentity':env['PCTID']}
+
+if GetOption('samsort_method') == 'name':
+    samtools_sort_opts['-n'] = ''
+elif GetOption('samsort_method') == 'coord':
+    pass
+else:
+    exit()
+
+depthfile_opts = {'--percentIdentity':env['PCTID']}
+
+if GetOption('nointdepth'):
+    depthfile_opts['--noIntraDepthVariance'] = ''
+else:
+    pass
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
 bwa_index_builder = Builder(action = 'bwa index $SOURCE')
@@ -148,12 +163,8 @@ bwa_samtools_r1r2_markdup = """bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[
 bwa_samtools_r1r2_markdup_builder = Builder(action = bwa_samtools_r1r2_markdup)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation
-if GetOption('nointdepth'):
-    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES'
-    depthfile_bin_builder = Builder(action = depthfile_bin_action)
-else:
-    depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_bin)
-    depthfile_bin_builder = Builder(action = depthfile_bin_action)
+depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
+depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #------------------------------------------------------------------------------
 #Add the builders to the environment
 builders = {'BWA_Samtools_Intl':bwa_samtools_intl_builder,
