@@ -114,10 +114,9 @@ samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_
 
 if GetOption('samsort_method') == 'name':
     samtools_sort_opts['-n'] = ''
-elif GetOption('samsort_method') == 'coord':
-    pass
 else:
-    exit()
+    pass
+
 
 depthfile_opts = {'--percentIdentity':env['PCTID']}
 
