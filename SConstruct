@@ -9,8 +9,8 @@ import atexit
 from datetime import datetime
 
 '''
-Motivation: Map reads to a assembly with bwa mem and get SAM and BAM output.
-SAM and BAM will not include unmapped reads.
+Motivation: Map reads to an assembly for metagenomic binning.
+BAM will not include unmapped reads.
 Depth file can be toggled with or without intra-depth variance.
 
 Author: Ian Rambo
@@ -72,8 +72,6 @@ AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, 
 default = 1, help = 'number of threads for samtools sort. Default = 1')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 default = '768M', help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G. Default = 768M')
-AddOption('--samsort_method', dest = 'samsort_method', type = 'str', nargs = 1, action = 'store',
-default = 'name', help = 'Specify whether samtools will sort the BAM by read name or coordinate. Choose "name" or "coord". Default = name')
 AddOption('--nheader', dest = 'nheader', type = 'int', default = 0, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. If 0, use all headers. Default = 0')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
@@ -112,18 +110,11 @@ if env['NHEADER'] == 0:
 bwa_mem_opts = {'-t':GetOption('align_thread')}
 samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
 
-if GetOption('samsort_method') == 'name':
-    samtools_sort_opts['-n'] = ''
-else:
-    pass
-
-
-depthfile_opts = {'--percentIdentity':env['PCTID']}
+depthfile_opts_bin = {'--percentIdentity':env['PCTID']}
 
 if GetOption('nointdepth'):
-    depthfile_opts['--noIntraDepthVariance'] = ''
-else:
-    pass
+    depthfile_opts_bin['--noIntraDepthVariance'] = ''
+
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
 bwa_index_builder = Builder(action = 'bwa index $SOURCE')
@@ -134,15 +125,15 @@ samtools_sort_optstring = optstring_join(samtools_sort_opts)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are interleaved
-bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hu -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_intl_action = 'bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | samtools view -hu -F4 - | samtools sort -n %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_intl_builder = Builder(action = bwa_samtools_intl_action)
 
 #Builder for pipe: read mapping, SAM reduction, SAM to BAM
 #FASTQ files are separate R1 and R2
-bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hu -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_r1r2_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]} | samtools view -hu -F4 - | samtools sort -n %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 
-bwa_samtools_single_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} | samtools view -hu -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
+bwa_samtools_single_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} | samtools view -hu -F4 - | samtools sort -n %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_single_builder = Builder(action = bwa_samtools_single_action)
 
 bwa_samtools_intl_markdup = """bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | \
@@ -162,7 +153,8 @@ bwa_samtools_r1r2_markdup = """bwa mem %s ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[
 bwa_samtools_r1r2_markdup_builder = Builder(action = bwa_samtools_r1r2_markdup)
 #------------------------------------------------------------------------------
 #Builder for depthfile creation
-depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts)
+
+depthfile_bin_action = 'src/jgi_summarize_bam_contig_depths --outputDepth $TARGET $SOURCES %s' % optstring_join(depthfile_opts_bin)
 depthfile_bin_builder = Builder(action = depthfile_bin_action)
 #------------------------------------------------------------------------------
 #Add the builders to the environment
