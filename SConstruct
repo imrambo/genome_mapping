@@ -72,14 +72,16 @@ AddOption('--samsort_thread', dest = 'samsort_thread', type = 'int', nargs = 1, 
 default = 1, help = 'number of threads for samtools sort. Default = 1')
 AddOption('--samsort_mem', dest = 'samsort_mem', type = 'str', nargs = 1, action = 'store',
 default = '768M', help = 'memory per thread for samtools sort. Specify an integer with K, M, or G suffix, e.g. 10G. Default = 768M')
+AddOption('--samsort_method', dest = 'samsort_method', type = 'str', nargs = 1, action = 'store',
+default = 'name', help = 'choose whether samtools sorts the BAM by "name" or "coordinate" when not marking duplicates. Default = name')
 AddOption('--nheader', dest = 'nheader', type = 'int', default = 0, action = 'store',
 help = 'number of headers from fastq file for determining if interleaved. If 0, use all headers. Default = 0')
 AddOption('--tmpdir', dest = 'tmpdir', type = 'str', nargs = 1, action = 'store',
 default = '/tmp', help = 'output directory for samtools sort temporary files. Default = /tmp')
 AddOption('--rm_local_build', dest = 'rmbuild', type = 'int', nargs = 1,
 action = 'store', default = 0, help = 'only keep the build targets in the --outdir. Will remove build targets in the temporary build within SConstruct directory. Specify 0 (keep) or 1 (remove). Default is 0.')
-# AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1,
-# action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance (yes = 1, no = 0). Default = 1')
+AddOption('--noIntraDepthVariance', dest = 'nointdepth', type = 'int', nargs = 1,
+action = 'store', default = 1, help = 'toggle jgi_summarize_bam_contig_depths --noIntraDepthVariance (yes = 1, no = 0). Default = 1')
 AddOption('--read_percent_id', dest = 'read_percent_id', type = int, nargs = 1,
 action = 'store', default = 97, help = 'The minimum end-to-end percent identity of qualifying reads for depth file. Default = 97')
 AddOption('--markdup', dest = 'markdup', type = 'int', nargs = 1,
@@ -94,7 +96,8 @@ env = Environment(ASSEMBLY=GetOption('assembly'),
                           OUTDIR=GetOption('outdir'),
                           SIDS=GetOption('sids'),
                           NHEADER=GetOption('nheader'),
-                          INTDEPTH=GetOption('nointdepth'),
+                          NOINTDEPTHVAR=GetOption('nointdepth'),
+                          SORTMETHOD=GetOption('samsort_method'),
                           PCTID=GetOption('read_percent_id'),
                           MARKDUP=GetOption('markdup'),
                           LOGFILE=GetOption('logfile'))
@@ -108,8 +111,14 @@ if env['NHEADER'] == 0:
 #OPTION DICTIONARIES
 #Options for bwa mem, samtools sort, depthfile
 bwa_mem_opts = {'-t':GetOption('align_thread')}
-samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir'), '-n':''}
+samtools_sort_opts = {'-@':GetOption('samsort_thread'), '-m':GetOption('samsort_mem'), '-T':GetOption('tmpdir')}
 depthfile_opts_bin = {'--percentIdentity':env['PCTID']}
+
+if env['NOINTDEPTHVAR']:
+    depthfile_opts_bin['--noIntraDepthVariance'] = ''
+
+if env['SORTMETHOD'] == 'name':
+    samtools_sort_opts['-n'] = ''
 #------------------------------------------------------------------------------
 #BWA index builder, add index targets as default targets
 bwa_index_builder = Builder(action = 'bwa index $SOURCE')
@@ -131,6 +140,7 @@ bwa_samtools_r1r2_builder = Builder(action = bwa_samtools_r1r2_action)
 bwa_samtools_single_action = 'bwa mem %s ${SOURCES[0]} ${SOURCES[1]} | samtools view -hu -F4 - | samtools sort %s -o - > $TARGET' % (bwa_optstring, samtools_sort_optstring)
 bwa_samtools_single_builder = Builder(action = bwa_samtools_single_action)
 
+#Adding samtools sort method will break this
 bwa_samtools_intl_markdup = """bwa mem %s ${SOURCES[0]} -p ${SOURCES[1]} | \
     samtools view -hu -F4 - | \
     samtools sort %s -n -O bam - | \
