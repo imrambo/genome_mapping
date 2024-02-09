@@ -2,7 +2,7 @@ Author: Ian Rambo
 Contact: ian.rambo@utexas.edu
 v.1.0.0.2
 
-Reproducible read mapping builds with SCons.
+## Reproducible read mapping builds with SCons.
 
 This wrapper maps FASTQ reads against an assembly (e.g. genome) in FASTA format using BWA-MEM.
 Additional functionality identifies single, R1-R2 paired, or interleaved FASTQ files and maps them to an assembly accordingly.
@@ -23,7 +23,7 @@ Cloning from the GitHub repository:
 
 git clone https://github.com/imrambo/genome_mapping.git
 
-
+## Environment
 Prerequisites: conda, python=3.8.1, samtools=1.10, biopython, python-magic=0.4.15
 bwa=0.7.17, scons=3.1.2
 
@@ -40,9 +40,9 @@ or, depending on your system:
 
 source activate scons_map
 
-###############
-Running the script
-###############
+
+## Running the script
+
 To see the available options for SCons, as well as the local options for the mapping, run this in the
 same directory as the SConstruct file:
 
